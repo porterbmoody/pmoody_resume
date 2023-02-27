@@ -30,23 +30,21 @@ def open_driver(url, driver_path):
     global driver
     driver = webdriver.Chrome(executable_path = driver_path)
     driver.get(url)
-    
-    time.sleep(random.randint(200,350)/100)
- 
+    # time.sleep(random.randint(100,2000)/100)
+
+    input("Press Enter to close")
+
     # try:
     #     driver.find_element_by_class_name(class_name).click()
     # except:
     #     print("No Click.")
     ################## scrolling randomly
     scroll_down()
-    # scroll_down()
-    # scroll_down()
+    scroll_down()
+    scroll_down()
     driver.minimize_window()
     
     return driver
-
-def get_soup(driver):
-    return 
 
 def extract_data(soup):
     """
@@ -93,13 +91,6 @@ def extract_data(soup):
             else:
                 link = None
 
-            # print('\n')
-            # print(title)
-            # print(price)
-            # print(mileage)
-            # print(location)
-            # print(link)
-            # exit()
             titles.append(title)
             prices.append(price)
             mileages.append(mileage)
@@ -138,47 +129,67 @@ def scroll_down():
 
     time.sleep(random.randint(350,650)/100)
 
-def keep_open():
-    input("Press Enter to close")
-    # time.sleep(5)
+# def keep_open():
+    
+#     # time.sleep(5)
 
 cities = {'colorado springs' : 'coloradosprings',
-          'rexburg' : '109379399080927',
-          'phoenix' : 'phoenix',
-          'san francisco' : 'sanfrancisco',
+          'rexburg'          : '109379399080927',
+          'phoenix'          : 'phoenix',
+          'san francisco'    : 'sanfrancisco',
           'american falls idaho' : '107321972630622',
-          'san diego' : 'sandiego',
-          'los angeles' : 'la',
-          'miami' : 'miami',
-          'charlotte' : 'charlotte',
-          'raleigh' : 'raleigh',
-          'provo' : '106066949424984',
-          'denver' : 'denver'}
+          'san diego'        : 'sandiego',
+          'los angeles'      : 'la',
+          'miami'            : 'miami',
+          'charlotte'        : 'charlotte',
+          'raleigh'          : 'raleigh',
+          'provo'            : '106066949424984',
+          'denver'           : 'denver',
+          'new york'         : 'nyc',
+          'chicago'          : 'chicago',
+          'houston'          : 'houston',
+          'philadelphia, PA' : 'philly',
+          'san antonio'      : 'sanantonio',
+          'dallas'           : 'dallas',
+          'la paz'           : '104001876301959',
+          'austin' : 'austin',
+          'jacksonville' : '111879628828536',
+          'hattiesburg' : '108528479168913'}
 
 def main():
+    # set paths and other variables
     driver_path = r'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/chromedriver.exe'
     path = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars.csv'
-    search_location = "provo"
+    # search_location = list(cities.keys())[-1]
+    search_location = "phoenix"
     search_item     = "cars"
     url = "https://www.facebook.com/marketplace/" + cities[search_location] + "/search/?query=" + search_item
 
     # open driver and get soup
     print("\nOpening driver...")
-    driver = open_driver(url, driver_path)
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    # driver = open_driver(url, driver_path)
+    # soup = BeautifulSoup(driver.page_source, 'html.parser')
 
     # extract data
-    data = extract_data(soup)
+    new_data = pd.DataFrame()
+    # new_data = extract_data(soup)
 
     # join new data with old
     old_data = pd.read_csv(path)
-    data = pd.concat([old_data, data], ignore_index=True)
-    data = data.drop_duplicates(subset = ['title','mileage','price','location','link'])
+    data = pd.concat([old_data, new_data], ignore_index=True)
+    data = data.drop_duplicates(subset = ['link'])
 
+    #################################### results
     print(data)
-    print("new rows added: ", len(data) - len(old_data))
-    print("location: ", search_location)
-    data.to_csv(path, index = False)    
+    new_data_length = len(new_data)
+    new_rows_added = len(data) - len(old_data)
+    # print(colored("rows extracted: "         + str(len(new_data)), 'yellow'))
+    print(colored("new rows added: "         + str(new_rows_added), 'green'))
+    print(colored("duplicate rows detected: "+ str(new_data_length - new_rows_added), 'red'))
+    print("location:", search_location)
+
+    if new_rows_added > 0:
+        data.to_csv(path, index = False)    
 
     driver.close()
     driver.quit()
@@ -188,8 +199,6 @@ if __name__ == "__main__":
     
     # wait_time = random.randint(0, 300*60)/99
     # print('Waiting:', round(wait_time), "seconds,",round(wait_time/60),"mins to run again.")
-    
-
 
 
 # git add .
