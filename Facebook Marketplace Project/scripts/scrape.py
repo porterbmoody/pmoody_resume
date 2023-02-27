@@ -32,7 +32,7 @@ def open_driver(url, driver_path):
     driver.get(url)
     # time.sleep(random.randint(100,2000)/100)
 
-    input("Press Enter to close")
+    input("Press Enter to continue\n")
 
     # try:
     #     driver.find_element_by_class_name(class_name).click()
@@ -154,42 +154,50 @@ cities = {'colorado springs' : 'coloradosprings',
           'la paz'           : '104001876301959',
           'austin' : 'austin',
           'jacksonville' : '111879628828536',
-          'hattiesburg' : '108528479168913'}
+          'hattiesburg' : '108528479168913',
+          'tallahassee' : '107903159238479',
+          'idaho falls' : '105590229473679'}
 
 def main():
     # set paths and other variables
     driver_path = r'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/chromedriver.exe'
     path = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars.csv'
-    # search_location = list(cities.keys())[-1]
-    search_location = "phoenix"
+    search_location = list(cities.keys())[-1]
+    # search_location = "phoenix"
     search_item     = "cars"
     url = "https://www.facebook.com/marketplace/" + cities[search_location] + "/search/?query=" + search_item
 
     # open driver and get soup
     print("\nOpening driver...")
-    # driver = open_driver(url, driver_path)
-    # soup = BeautifulSoup(driver.page_source, 'html.parser')
+    driver = open_driver(url, driver_path)
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
 
     # extract data
     new_data = pd.DataFrame()
-    # new_data = extract_data(soup)
+    new_data = extract_data(soup)
 
     # join new data with old
     old_data = pd.read_csv(path)
+    old_data_length = len(old_data)
+
     data = pd.concat([old_data, new_data], ignore_index=True)
-    data = data.drop_duplicates(subset = ['link'])
+    data_before_dropping_duplicates_length = len(data)
+    data = data.drop_duplicates(subset = ['title','mileage','price','location'], keep='last')
+    data_after_dropping_duplicates_length = len(data)
 
     #################################### results
     print(data)
-    new_data_length = len(new_data)
-    new_rows_added = len(data) - len(old_data)
-    # print(colored("rows extracted: "         + str(len(new_data)), 'yellow'))
-    print(colored("new rows added: "         + str(new_rows_added), 'green'))
-    print(colored("duplicate rows detected: "+ str(new_data_length - new_rows_added), 'red'))
+    new_data_length = len(data)
+    # new_rows_added = len(data) - len(old_data)
+    change = new_data_length - old_data_length
+    print(colored("rows extracted from web page: "          + str(len(new_data)), 'yellow'))
+    print(colored("duplicate rows detected: " + str(data_before_dropping_duplicates_length - data_after_dropping_duplicates_length), 'red'))
+    print(colored("net rows added: "          + str(change), 'green'))
     print("location:", search_location)
 
-    if new_rows_added > 0:
-        data.to_csv(path, index = False)    
+
+    if change != 0:
+        data.to_csv(path, index = False)
 
     driver.close()
     driver.quit()
@@ -204,3 +212,13 @@ if __name__ == "__main__":
 # git add .
 # git commit -m "awesomeness"
 # git push
+
+# path = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars.csv'
+# old_data = pd.read_csv(path)
+
+# print(len(old_data))
+# old_data = old_data.drop_duplicates(subset = ['title','mileage','price','location'])
+# print(len(old_data))
+
+
+
