@@ -15,13 +15,7 @@ from datetime import date
 
 # pd.set_option("display.max_rows", 120)
 # pd.set_option('display.max_colwidth', -1)
-
-
-
 break_ = colored("---------------------------------------------------------------------", 'yellow')
-# %%
-
-# password = str(input("Enter password: "))
 
 def open_driver(url, driver_path):
     """ returns soup
@@ -36,23 +30,47 @@ def open_driver(url, driver_path):
     # time.sleep(random.randint(100,2000)/100)
     input("Press Enter to continue\n")
 
-    # try:
-    #     driver.find_element_by_class_name(class_name).click()
-    # except:
-    #     print("No Click.")
-    ################## scrolling randomly
-    scroll_down()
-    scroll_down()
-    scroll_down()
-    driver.minimize_window()
-    
+    scroll_down(5)
+    try:
+        driver.minimize_window()
+    except:
+        pass
     return driver
+
+def scroll_down(iterations):
+    for iteration in range(iterations):
+        print(colored("\nscrolling... ", 'green'))
+        print(colored("iteration: " + str(iteration + 1), 'blue'))
+        scroll_pause_time = 1
+
+        # Get scroll height
+        last_height = driver.execute_script("return document.body.scrollHeight")
+
+        while True:
+            # Scroll down to bottom
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+            # Wait to load page
+            time.sleep(scroll_pause_time)
+
+            # Calculate new scroll height and compare with last scroll height
+            new_height = driver.execute_script("return document.body.scrollHeight")
+            if new_height == last_height:
+                break
+            last_height = new_height
+        time.sleep(random.randint(350,650)/100)
+
 
 def login(driver):
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     username = "7193385009"
     password = "Yoho1mes"
 
+
+    # try:
+    #     driver.find_element_by_class_name(class_name).click()
+    # except:
+    #     print("No Click.")
     time.sleep(3)
     login_button = soup.find('div', {'aria-label':'Accessible login button'})
     login_button.click()
@@ -132,29 +150,6 @@ def extract_data(soup):
             'date_scraped' : date.today()}))
     return data
 
-def scroll_down():
-    print(break_)
-    print(colored("Scrolling...", 'yellow'))
-    SCROLL_PAUSE_TIME = 0.7
-
-    # Get scroll height
-    last_height = driver.execute_script("return document.body.scrollHeight")
-
-    while True:
-        # Scroll down to bottom
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-        # Wait to load page
-        time.sleep(SCROLL_PAUSE_TIME)
-
-        # Calculate new scroll height and compare with last scroll height
-        new_height = driver.execute_script("return document.body.scrollHeight")
-        if new_height == last_height:
-            break
-        last_height = new_height
-
-    time.sleep(random.randint(350,650)/100)
-
 def scrape_webpage(url, driver_path):
     """ Open driver and pull soup. Returns beautiful soup object
     """
@@ -165,16 +160,44 @@ def scrape_webpage(url, driver_path):
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     return extract_data(soup)
 
-def merge_data(new_data, old_data):
+def merge_data(new_data, old_data, duplicate_columns):
     """ Join newly scraped data with stored data
     """
     # join new data with old
     data = pd.concat([old_data, new_data], ignore_index=True)
     data_before_dropping_duplicates_length = len(data)
-    data = data.drop_duplicates(subset = ['title','mileage','price','location'], keep='last')
+    data = data.drop_duplicates(subset = duplicate_columns, keep='last')
     data_after_dropping_duplicates_length = len(data)
     duplicates = data_before_dropping_duplicates_length - data_after_dropping_duplicates_length
     return data, duplicates
+
+
+
+def swag_awesome_scrape_function(path, search_location, search_item, driver_path):
+    print(break_)
+
+    url             = "https://www.facebook.com/marketplace/" + cities[search_location] + "/search/?query=" + search_item
+    new_data         = scrape_webpage(url, driver_path)
+    old_data         = pd.read_csv(path)
+    data, duplicates = merge_data(new_data, old_data, duplicate_columns=['title','mileage','price','location'])
+
+    # results
+    old_data_length = len(old_data)
+    data_length = len(data)
+    print(data)
+    change = data_length - old_data_length
+    print(colored("rows extracted from web page: "          + str(len(new_data)), 'yellow'))
+    print(colored("duplicate rows detected: " + str(duplicates), 'red'))
+    print(colored("net rows added: "          + str(change), 'green'))
+    print(colored("location(s): " + search_location, 'magenta'))
+    print(break_)
+    print(colored('\ntotal rows: '+ str(data_length)+'\n', 'green'))
+
+    if change != 0:
+        data.to_csv(path, index = False)
+
+    driver.close()
+    driver.quit()
 
 cities = {'colorado springs' : 'coloradosprings',
           'rexburg'          : '109379399080927',
@@ -203,33 +226,13 @@ cities = {'colorado springs' : 'coloradosprings',
           'portland, OR'     : 'portland'}
 
 def main():
-    # set paths and other variables
-    driver_path     = r'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/chromedriver.exe'
-    path            = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars.csv'
-    search_location = list(cities.keys())[-1]
-    # search_location = "denver"
-    search_item     = "cars"
-    url             = "https://www.facebook.com/marketplace/" + cities[search_location] + "/search/?query=" + search_item
 
-    new_data         = scrape_webpage(url, driver_path)
-    old_data         = pd.read_csv(path)
-    data, duplicates = merge_data(new_data, old_data)
-
-    # results
-    old_data_length = len(old_data)
-    data_length = len(data)
-    print(data)
-    change = data_length - old_data_length
-    print(colored("rows extracted from web page: "          + str(len(new_data)), 'yellow'))
-    print(colored("duplicate rows detected: " + str(duplicates), 'red'))
-    print(colored("net rows added: "          + str(change), 'green'))
-    print(colored("location: " + search_location, 'magenta'))
-
-    if change != 0:
-        data.to_csv(path, index = False)
-
-    driver.close()
-    driver.quit()
+    driver_path     = r'./Facebook Marketplace Project/chromedriver.exe'
+    # search_location = list(cities.keys())[4]
+    search_location = "denver"
+    search_item     = "cars and trucks"
+    path            = './Facebook Marketplace Project/data/cars_total.csv'
+    swag_awesome_scrape_function(path, search_location, search_item, driver_path)
 
 if __name__ == "__main__":
     main()
@@ -238,16 +241,17 @@ if __name__ == "__main__":
     # print('Waiting:', round(wait_time), "seconds,",round(wait_time/60),"mins to run again.")
 
 
-git add .
-git commit -m "awesomeness"
-git push
+# git add .
+# git commit -m "awesomeness"
+# git push
+# path            = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars.csv'
+# data = pd.read_csv(path)
 
-# path = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars.csv'
-# old_data = pd.read_csv(path)
+# data_before_dropping_duplicates_length = len(data)
+# data = data.drop_duplicates(subset = ['title','mileage','location'], keep='last')
+# data_after_dropping_duplicates_length = len(data)
+# duplicates = data_before_dropping_duplicates_length - data_after_dropping_duplicates_length
 
-# print(len(old_data))
-# old_data = old_data.drop_duplicates(subset = ['title','mileage','price','location'])
-# print(len(old_data))
-
-
+# print(duplicates)
+# print(data[data.duplicated(['title', 'mileage', 'location'], keep=False)])
 
