@@ -20,18 +20,20 @@ from datetime import date
 
 break_ = colored("---------------------------------------------------------------------", 'yellow')
 # %%
-username = "porterbmoody@gmail.com"
-password = "Yoho1mes"
+
 # password = str(input("Enter password: "))
 
 def open_driver(url, driver_path):
     """ returns soup
     """
     global driver
-    driver = webdriver.Chrome(executable_path = driver_path)
+    chrome_options = webdriver.ChromeOptions()
+    prefs = {"profile.default_content_setting_values.notifications" : 2}
+    chrome_options.add_experimental_option("prefs",prefs)
+    driver = webdriver.Chrome(executable_path = driver_path, chrome_options=chrome_options)
     driver.get(url)
-    # time.sleep(random.randint(100,2000)/100)
 
+    # time.sleep(random.randint(100,2000)/100)
     input("Press Enter to continue\n")
 
     # try:
@@ -46,9 +48,33 @@ def open_driver(url, driver_path):
     
     return driver
 
+def login(driver):
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    username = "7193385009"
+    password = "Yoho1mes"
+
+    time.sleep(3)
+    login_button = soup.find('div', {'aria-label':'Accessible login button'})
+    login_button.click()
+    time.sleep(3)
+
+    username = soup.find('input' , {'name':"email"})
+    password = soup.find('input' , {'name':"pass"})
+    # password = soup.find_element_by_id("pass")
+    # submit   = soup.find_element_by_id("loginbutton")
+    username.send_keys(username)
+    password.send_keys(password)
+    time.sleep(3)
+
+    submit = soup.find('button' , {'name' : 'login'})
+    submit.click()
+    time.sleep(3)
+    return driver
+
 def extract_data(soup):
     """
-    Input soup and this will extract data and return pandas dataframe
+    Input soup and this will extract data and 
+    returns: pandas dataframe
     """
     prices            = []
     titles            = []
@@ -129,9 +155,26 @@ def scroll_down():
 
     time.sleep(random.randint(350,650)/100)
 
-# def keep_open():
-    
-#     # time.sleep(5)
+def scrape_webpage(url, driver_path):
+    """ Open driver and pull soup. Returns beautiful soup object
+    """
+    # open driver and get soup
+    print("\nOpening driver...")
+    driver = open_driver(url, driver_path)
+    # driver = login(driver)
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    return extract_data(soup)
+
+def merge_data(new_data, old_data):
+    """ Join newly scraped data with stored data
+    """
+    # join new data with old
+    data = pd.concat([old_data, new_data], ignore_index=True)
+    data_before_dropping_duplicates_length = len(data)
+    data = data.drop_duplicates(subset = ['title','mileage','price','location'], keep='last')
+    data_after_dropping_duplicates_length = len(data)
+    duplicates = data_before_dropping_duplicates_length - data_after_dropping_duplicates_length
+    return data, duplicates
 
 cities = {'colorado springs' : 'coloradosprings',
           'rexburg'          : '109379399080927',
@@ -152,49 +195,35 @@ cities = {'colorado springs' : 'coloradosprings',
           'san antonio'      : 'sanantonio',
           'dallas'           : 'dallas',
           'la paz'           : '104001876301959',
-          'austin' : 'austin',
-          'jacksonville' : '111879628828536',
-          'hattiesburg' : '108528479168913',
-          'tallahassee' : '107903159238479',
-          'idaho falls' : '105590229473679'}
+          'austin'           : 'austin',
+          'jacksonville'     : '111879628828536',
+          'hattiesburg'      : '108528479168913',
+          'tallahassee'      : '107903159238479',
+          'idaho falls'      : '105590229473679',
+          'portland, OR'     : 'portland'}
 
 def main():
     # set paths and other variables
-    driver_path = r'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/chromedriver.exe'
-    path = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars.csv'
+    driver_path     = r'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/chromedriver.exe'
+    path            = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars.csv'
     search_location = list(cities.keys())[-1]
-    # search_location = "phoenix"
+    # search_location = "denver"
     search_item     = "cars"
-    url = "https://www.facebook.com/marketplace/" + cities[search_location] + "/search/?query=" + search_item
+    url             = "https://www.facebook.com/marketplace/" + cities[search_location] + "/search/?query=" + search_item
 
-    # open driver and get soup
-    print("\nOpening driver...")
-    driver = open_driver(url, driver_path)
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    new_data         = scrape_webpage(url, driver_path)
+    old_data         = pd.read_csv(path)
+    data, duplicates = merge_data(new_data, old_data)
 
-    # extract data
-    new_data = pd.DataFrame()
-    new_data = extract_data(soup)
-
-    # join new data with old
-    old_data = pd.read_csv(path)
+    # results
     old_data_length = len(old_data)
-
-    data = pd.concat([old_data, new_data], ignore_index=True)
-    data_before_dropping_duplicates_length = len(data)
-    data = data.drop_duplicates(subset = ['title','mileage','price','location'], keep='last')
-    data_after_dropping_duplicates_length = len(data)
-
-    #################################### results
+    data_length = len(data)
     print(data)
-    new_data_length = len(data)
-    # new_rows_added = len(data) - len(old_data)
-    change = new_data_length - old_data_length
+    change = data_length - old_data_length
     print(colored("rows extracted from web page: "          + str(len(new_data)), 'yellow'))
-    print(colored("duplicate rows detected: " + str(data_before_dropping_duplicates_length - data_after_dropping_duplicates_length), 'red'))
+    print(colored("duplicate rows detected: " + str(duplicates), 'red'))
     print(colored("net rows added: "          + str(change), 'green'))
-    print("location:", search_location)
-
+    print(colored("location: " + search_location, 'magenta'))
 
     if change != 0:
         data.to_csv(path, index = False)
@@ -209,9 +238,9 @@ if __name__ == "__main__":
     # print('Waiting:', round(wait_time), "seconds,",round(wait_time/60),"mins to run again.")
 
 
-# git add .
-# git commit -m "awesomeness"
-# git push
+git add .
+git commit -m "awesomeness"
+git push
 
 # path = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars.csv'
 # old_data = pd.read_csv(path)
