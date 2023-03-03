@@ -1,16 +1,10 @@
 #%%
-import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 import time
 import random
 import pandas as pd
-import re
-from selenium.webdriver.chrome.options import Options
-import numpy as np
 from termcolor import colored
-# import connect_to_mysql
-from datetime import datetime
 from datetime import date
 
 # pd.set_option("display.max_rows", 120)
@@ -18,9 +12,8 @@ from datetime import date
 break_ = colored("---------------------------------------------------------------------", 'yellow')
 
 def open_driver(url, driver_path):
-    """ returns soup
+    """ Opens drivers to specific url and grabs soup
     """
-    global driver
     chrome_options = webdriver.ChromeOptions()
     prefs = {"profile.default_content_setting_values.notifications" : 2}
     chrome_options.add_experimental_option("prefs",prefs)
@@ -30,14 +23,14 @@ def open_driver(url, driver_path):
     # time.sleep(random.randint(100,2000)/100)
     input("Press Enter to continue\n")
 
-    scroll_down(5)
+    scroll_down(driver, 5)
     try:
         driver.minimize_window()
     except:
         pass
     return driver
 
-def scroll_down(iterations):
+def scroll_down(driver, iterations):
     for iteration in range(iterations):
         print(colored("\nscrolling... ", 'green'))
         print(colored("iteration: " + str(iteration + 1), 'blue'))
@@ -60,36 +53,7 @@ def scroll_down(iterations):
             last_height = new_height
         time.sleep(random.randint(350,650)/100)
 
-
-def login(driver):
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-    username = "7193385009"
-    password = "Yoho1mes"
-
-
-    # try:
-    #     driver.find_element_by_class_name(class_name).click()
-    # except:
-    #     print("No Click.")
-    time.sleep(3)
-    login_button = soup.find('div', {'aria-label':'Accessible login button'})
-    login_button.click()
-    time.sleep(3)
-
-    username = soup.find('input' , {'name':"email"})
-    password = soup.find('input' , {'name':"pass"})
-    # password = soup.find_element_by_id("pass")
-    # submit   = soup.find_element_by_id("loginbutton")
-    username.send_keys(username)
-    password.send_keys(password)
-    time.sleep(3)
-
-    submit = soup.find('button' , {'name' : 'login'})
-    submit.click()
-    time.sleep(3)
-    return driver
-
-def extract_data(soup):
+def extract_data_from_soup(soup):
     """
     Input soup and this will extract data and 
     returns: pandas dataframe
@@ -150,16 +114,6 @@ def extract_data(soup):
             'date_scraped' : date.today()}))
     return data
 
-def scrape_webpage(url, driver_path):
-    """ Open driver and pull soup. Returns beautiful soup object
-    """
-    # open driver and get soup
-    print("\nOpening driver...")
-    driver = open_driver(url, driver_path)
-    # driver = login(driver)
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-    return extract_data(soup)
-
 def merge_data(new_data, old_data, duplicate_columns):
     """ Join newly scraped data with stored data
     """
@@ -171,68 +125,94 @@ def merge_data(new_data, old_data, duplicate_columns):
     duplicates = data_before_dropping_duplicates_length - data_after_dropping_duplicates_length
     return data, duplicates
 
-
-
-def swag_awesome_scrape_function(path, search_location, search_item, driver_path):
-    print(break_)
-
-    url             = "https://www.facebook.com/marketplace/" + cities[search_location] + "/search/?query=" + search_item
-    new_data         = scrape_webpage(url, driver_path)
-    old_data         = pd.read_csv(path)
-    data, duplicates = merge_data(new_data, old_data, duplicate_columns=['title','mileage','price','location'])
-
-    # results
-    old_data_length = len(old_data)
-    data_length = len(data)
-    print(data)
-    change = data_length - old_data_length
-    print(colored("rows extracted from web page: "          + str(len(new_data)), 'yellow'))
-    print(colored("duplicate rows detected: " + str(duplicates), 'red'))
-    print(colored("net rows added: "          + str(change), 'green'))
-    print(colored("location(s): " + search_location, 'magenta'))
-    print(break_)
-    print(colored('\ntotal rows: '+ str(data_length)+'\n', 'green'))
-
-    if change != 0:
-        data.to_csv(path, index = False)
-
-    driver.close()
-    driver.quit()
-
-cities = {'colorado springs' : 'coloradosprings',
-          'rexburg'          : '109379399080927',
-          'phoenix'          : 'phoenix',
-          'san francisco'    : 'sanfrancisco',
-          'american falls idaho' : '107321972630622',
-          'san diego'        : 'sandiego',
-          'los angeles'      : 'la',
-          'miami'            : 'miami',
-          'charlotte'        : 'charlotte',
-          'raleigh'          : 'raleigh',
-          'provo'            : '106066949424984',
-          'denver'           : 'denver',
-          'new york'         : 'nyc',
-          'chicago'          : 'chicago',
-          'houston'          : 'houston',
-          'philadelphia, PA' : 'philly',
-          'san antonio'      : 'sanantonio',
-          'dallas'           : 'dallas',
-          'la paz'           : '104001876301959',
-          'austin'           : 'austin',
-          'jacksonville'     : '111879628828536',
-          'hattiesburg'      : '108528479168913',
-          'tallahassee'      : '107903159238479',
-          'idaho falls'      : '105590229473679',
-          'portland, OR'     : 'portland'}
+def clean_data(data):
+    data = data[~data['title'].isna()]
+    data.dropna(subset = ['title'])
+    
+    # extract year from title column
+    pattern_year = r'^(\d{4})'
+    pattern_door = r'(2D|4D)$'
+    # extract year and door style columns
+    data['year']  = data['title'].str.extract(pattern_year)
+    data['door']  = data['door'].str.extract(pattern_door)
+    data['door']  = data['door'].str.replace('D', '')
+    data['title'] = data['title'].str.replace(pattern_year, '').str.strip()
+    data['title'] = data['title'].str.replace(pattern_door, '').str.strip()
+    return data
 
 def main():
 
+    # declare path variables
     driver_path     = r'./Facebook Marketplace Project/chromedriver.exe'
-    # search_location = list(cities.keys())[4]
-    search_location = "denver"
-    search_item     = "cars and trucks"
+    data_cities     = './Facebook Marketplace Project/data/data_cities.csv'
     path            = './Facebook Marketplace Project/data/cars_total.csv'
-    swag_awesome_scrape_function(path, search_location, search_item, driver_path)
+    path_today      = './Facebook Marketplace Project/data/cars_total_' + str(date.today()) + '.csv'
+
+    data_cities = pd.read_csv(data_cities)
+    # print(data_cities)
+    # iterate through major cities and scrape listings
+    chrome_options = webdriver.ChromeOptions()
+    prefs = {"profile.default_content_setting_values.notifications" : 2}
+    chrome_options.add_experimental_option("prefs",prefs)
+    driver = webdriver.Chrome(executable_path = driver_path, chrome_options=chrome_options)
+    login = 'n'
+
+    for index, row in data_cities.head(1).iterrows():
+        row = list(row)
+        search_location = row[0]
+        search_location_code = row[1]
+        search_item     = "cars"
+
+        print(break_)
+        print("searching for: " + search_item)
+        print("location: ", search_location)
+        url = 'https://www.facebook.com/marketplace/' + search_location_code + '/' + search_item
+
+        # open driver and get soup
+        print("\nOpening driver...")
+        # driver           = open_driver(url, driver_path)
+        driver.get(url)
+
+        # time.sleep(random.randint(100,2000)/100)
+        if login != "y":
+            login = input("Are you logged in? (y/n)\n")
+
+        scroll_down(driver, 3)
+
+        soup             = BeautifulSoup(driver.page_source, 'html.parser')
+        new_data         = extract_data_from_soup(soup)
+        new_data = new_data.dropna(subset=['title'])
+        new_data = new_data[~new_data['title'].str.contains('hot wheel|toy|disney|hotwheels|Pixar|Fast And Furious', case=False)]
+        # remove to car rows lol
+        old_data         = pd.read_csv(path)
+        data, duplicates = merge_data(new_data, old_data, duplicate_columns=['title','mileage','price','location'])
+        # extract year and 4D, 2D column
+        # results
+        old_data_length = len(old_data)
+        data_length = len(data)
+        print(data)
+        change = data_length - old_data_length
+        print(colored("rows extracted from web page: "          + str(len(new_data)), 'yellow'))
+        print(colored("duplicate rows detected: " + str(duplicates), 'red'))
+        print(colored("net rows added: "          + str(change), 'green'))
+        print(colored("location(s): " + search_location, 'magenta'))
+        print(break_)
+        print(colored('\ntotal rows: '+ str(data_length)+'\n', 'green'))
+
+        if change != 0:
+            data.to_csv(path, index = False)
+            data.to_csv(path_today, index = False)
+    driver.minimize_window()
+    driver.close()
+    driver.quit()
+        # exit()
+    
+    # data_cities.to_csv(path_cities, index=False)
+    # data_cities = pd.read_csv(path)
+    # search_location = list(cities_dict.keys())[4]
+    # search_location = "denver"
+
+
 
 if __name__ == "__main__":
     main()
@@ -244,6 +224,7 @@ if __name__ == "__main__":
 # git add .
 # git commit -m "awesomeness"
 # git push
+
 # path            = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars.csv'
 # data = pd.read_csv(path)
 
@@ -255,3 +236,52 @@ if __name__ == "__main__":
 # print(duplicates)
 # print(data[data.duplicated(['title', 'mileage', 'location'], keep=False)])
 
+
+# def login(driver):
+#     soup = BeautifulSoup(driver.page_source, 'html.parser')
+#     username = "7193385009"
+#     password = "Yoho1mes"
+
+
+#     # try:
+#     #     driver.find_element_by_class_name(class_name).click()
+#     # except:
+#     #     print("No Click.")
+#     time.sleep(3)
+#     login_button = soup.find('div', {'aria-label':'Accessible login button'})
+#     login_button.click()
+#     time.sleep(3)
+
+#     username = soup.find('input' , {'name':"email"})
+#     password = soup.find('input' , {'name':"pass"})
+#     # password = soup.find_element_by_id("pass")
+#     # submit   = soup.find_element_by_id("loginbutton")
+#     username.send_keys(username)
+#     password.send_keys(password)
+#     time.sleep(3)
+
+#     submit = soup.find('button' , {'name' : 'login'})
+#     submit.click()
+#     time.sleep(3)
+#     return driver
+
+
+#%%
+# import pandas as pd
+
+# data = pd.read_csv('../data/cars_total.csv')
+
+# # Drop rows that contain "hot wheel", "toy", "disney" somewhere in the cell of the column title
+# data = data.dropna(subset=['title'])
+# data = data[~data['title'].str.contains('hot wheel|toy|disney', case=False)]
+
+# # filtered_data.to_csv('../data/doodoo_trash.csv')
+# data.to_csv('../data/cars_total.csv', index=False)
+
+
+
+#%%
+
+
+
+# %%
