@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 import nltk
 import re
+pd.set_option('display.max_rows', 100)
 
 # Download the necessary data files
 nltk.download('punkt')
@@ -12,6 +13,43 @@ nltk.download('punkt')
 path = '../../Facebook Marketplace Project/data/cars_total.csv'
 data = pd.read_csv(path)
 data
+
+data = data[~data['title'].isna()]
+data.dropna(subset = ['title'])
+remove_key_words = 'hot wheel|toy|disney|hotwheels|Pixar|Fast And Furious|auto hoy a crédito facil'
+data = data[~data['title'].str.contains(remove_key_words, case=False)]
+
+# extract year from title column
+pattern_year = r'^(\d{4})'
+pattern_door = r'(2D|4D)$'
+# extract year and door style columns
+data['year']  = data['title'].str.extract(pattern_year)
+data['door']  = data['title'].str.extract(pattern_door)
+
+data['door']  = data['door'].str.replace('D', '')
+data['title'] = data['title'].str.replace(pattern_year, '').str.strip()
+data['title'] = data['title'].str.replace(pattern_door, '').str.strip()
+
+data['maker'] = data['title'].str.split().str[0]
+data['title'] = data['title'].str.split(n = 1).str[1]
+
+
+data = data.dropna(subset = ['year'])
+
+data
+# data.drop(['link'], axis=0)
+# data.groupby(['maker']).agg(sum)
+
+#%%
+
+
+data_top_makers = data.groupby('maker').size().reset_index().sort_values(by = 0, ascending=False).reset_index(drop=True).head(50)
+joined = pd.merge(data, data_top_makers, on='maker', how='inner').reset_index(drop=True)
+print(joined.tail())
+
+#%%
+
+data.head(50)
 
 #%%
 
@@ -30,10 +68,6 @@ def label_encode_text(text):
 # Encode the 'Text' column
 data['encoded'] = data['title'].apply(label_encode_text)
 
-# Print the updated DataFrame
-print(data)
-
-#%%
 data
 # # %%
 # import pandas as pd

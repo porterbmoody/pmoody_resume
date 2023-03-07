@@ -6,6 +6,9 @@ import random
 import pandas as pd
 from termcolor import colored
 from datetime import date
+import os
+from time import sleep
+from tqdm import tqdm
 
 # pd.set_option("display.max_rows", 120)
 # pd.set_option('display.max_colwidth', -1)
@@ -18,22 +21,13 @@ def open_driver(url, driver_path):
     prefs = {"profile.default_content_setting_values.notifications" : 2}
     chrome_options.add_experimental_option("prefs",prefs)
     driver = webdriver.Chrome(executable_path = driver_path, chrome_options=chrome_options)
-    driver.get(url)
-
-    # time.sleep(random.randint(100,2000)/100)
-    input("Press Enter to continue\n")
-
-    scroll_down(driver, 5)
-    try:
-        driver.minimize_window()
-    except:
-        pass
+    driver.manage().window().maximize()
     return driver
 
 def scroll_down(driver, iterations):
-    for iteration in range(iterations):
-        print(colored("\nscrolling... ", 'green'))
-        print(colored("iteration: " + str(iteration + 1), 'blue'))
+    print(colored("\nscrolling... ", 'green'))
+    # print(colored("iteration: " + str(iteration + 1), 'blue'))
+    for iteration in tqdm(range(10)):
         scroll_pause_time = 1
 
         # Get scroll height
@@ -111,7 +105,8 @@ def extract_data_from_soup(soup):
             "price"        : prices,
             "location"     : locations,
             'link'         : links,
-            'date_scraped' : date.today()}))
+            'date_scraped' : date.today()
+            }))
     return data
 
 def merge_data(new_data, old_data, duplicate_columns):
@@ -125,23 +120,7 @@ def merge_data(new_data, old_data, duplicate_columns):
     duplicates = data_before_dropping_duplicates_length - data_after_dropping_duplicates_length
     return data, duplicates
 
-def clean_data(data):
-    data = data[~data['title'].isna()]
-    data.dropna(subset = ['title'])
-    
-    # extract year from title column
-    pattern_year = r'^(\d{4})'
-    pattern_door = r'(2D|4D)$'
-    # extract year and door style columns
-    data['year']  = data['title'].str.extract(pattern_year)
-    data['door']  = data['door'].str.extract(pattern_door)
-    data['door']  = data['door'].str.replace('D', '')
-    data['title'] = data['title'].str.replace(pattern_year, '').str.strip()
-    data['title'] = data['title'].str.replace(pattern_door, '').str.strip()
-    return data
-
 def main():
-
     # declare path variables
     driver_path     = r'./Facebook Marketplace Project/chromedriver.exe'
     data_cities     = './Facebook Marketplace Project/data/data_cities.csv'
@@ -149,19 +128,14 @@ def main():
     path_today      = './Facebook Marketplace Project/data/cars_total_' + str(date.today()) + '.csv'
 
     data_cities = pd.read_csv(data_cities)
-    # print(data_cities)
-    # iterate through major cities and scrape listings
-    chrome_options = webdriver.ChromeOptions()
-    prefs = {"profile.default_content_setting_values.notifications" : 2}
-    chrome_options.add_experimental_option("prefs",prefs)
-    driver = webdriver.Chrome(executable_path = driver_path, chrome_options=chrome_options)
+    driver = open_driver(url, driver_path)
     login = 'n'
 
     for index, row in data_cities.head(1).iterrows():
         row = list(row)
-        search_location = row[0]
+        search_location      = row[0]
         search_location_code = row[1]
-        search_item     = "cars"
+        search_item          = "cars"
 
         print(break_)
         print("searching for: " + search_item)
@@ -170,7 +144,6 @@ def main():
 
         # open driver and get soup
         print("\nOpening driver...")
-        # driver           = open_driver(url, driver_path)
         driver.get(url)
 
         # time.sleep(random.randint(100,2000)/100)
@@ -186,7 +159,6 @@ def main():
         # remove to car rows lol
         old_data         = pd.read_csv(path)
         data, duplicates = merge_data(new_data, old_data, duplicate_columns=['title','mileage','price','location'])
-        # extract year and 4D, 2D column
         # results
         old_data_length = len(old_data)
         data_length = len(data)
@@ -201,11 +173,11 @@ def main():
 
         if change != 0:
             data.to_csv(path, index = False)
-            data.to_csv(path_today, index = False)
+            # if os.path.exists(path):
+                # data.to_csv(path_today, index = False)
     driver.minimize_window()
     driver.close()
     driver.quit()
-        # exit()
     
     # data_cities.to_csv(path_cities, index=False)
     # data_cities = pd.read_csv(path)
@@ -277,11 +249,3 @@ if __name__ == "__main__":
 
 # # filtered_data.to_csv('../data/doodoo_trash.csv')
 # data.to_csv('../data/cars_total.csv', index=False)
-
-
-
-#%%
-
-
-
-# %%
