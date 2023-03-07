@@ -1,6 +1,7 @@
 #%%
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 import time
 import random
 import pandas as pd
@@ -14,14 +15,14 @@ from tqdm import tqdm
 # pd.set_option('display.max_colwidth', -1)
 break_ = colored("---------------------------------------------------------------------", 'yellow')
 
-def open_driver(url, driver_path):
+def open_driver(driver_path):
     """ Opens drivers to specific url and grabs soup
     """
     chrome_options = webdriver.ChromeOptions()
     prefs = {"profile.default_content_setting_values.notifications" : 2}
     chrome_options.add_experimental_option("prefs",prefs)
     driver = webdriver.Chrome(executable_path = driver_path, chrome_options=chrome_options)
-    driver.manage().window().maximize()
+    driver.maximize_window()
     return driver
 
 def scroll_down(driver, iterations):
@@ -121,17 +122,34 @@ def merge_data(new_data, old_data, duplicate_columns):
     return data, duplicates
 
 def main():
+    username = "7193385009"
+    password = "Yoho1mes"
     # declare path variables
     driver_path     = r'./Facebook Marketplace Project/chromedriver.exe'
     data_cities     = './Facebook Marketplace Project/data/data_cities.csv'
     path            = './Facebook Marketplace Project/data/cars_total.csv'
     path_today      = './Facebook Marketplace Project/data/cars_total_' + str(date.today()) + '.csv'
+    url             = 'https://www.facebook.com/marketplace/phoenix/cars'
 
     data_cities = pd.read_csv(data_cities)
-    driver = open_driver(url, driver_path)
+    driver = open_driver(driver_path)
+    driver.get(url)
+    time.sleep(1)
+    # login
     login = 'n'
+    driver.find_element('name', 'email').send_keys(username)
+    driver.find_element('name',  'pass').send_keys(password)
+    time.sleep(1)
+    # find the login button by its aria-label attribute
+    login_button = driver.find_element(By.CSS_SELECTOR, "[aria-label='Accessible login button']")
+    # click the login button
+    login_button.click()
+    time.sleep(1)
 
-    for index, row in data_cities.head(1).iterrows():
+    # if login != "y":
+        # login = input("Are you logged in? (y/n)\n")
+
+    for index, row in data_cities.head(3).iterrows():
         row = list(row)
         search_location      = row[0]
         search_location_code = row[1]
@@ -145,11 +163,6 @@ def main():
         # open driver and get soup
         print("\nOpening driver...")
         driver.get(url)
-
-        # time.sleep(random.randint(100,2000)/100)
-        if login != "y":
-            login = input("Are you logged in? (y/n)\n")
-
         scroll_down(driver, 3)
 
         soup             = BeautifulSoup(driver.page_source, 'html.parser')
@@ -207,12 +220,6 @@ if __name__ == "__main__":
 
 # print(duplicates)
 # print(data[data.duplicated(['title', 'mileage', 'location'], keep=False)])
-
-
-# def login(driver):
-#     soup = BeautifulSoup(driver.page_source, 'html.parser')
-#     username = "7193385009"
-#     password = "Yoho1mes"
 
 
 #     # try:
