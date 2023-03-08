@@ -25,10 +25,25 @@ def open_driver(driver_path):
     driver.maximize_window()
     return driver
 
+def login(driver):
+    username = "7193385009"
+    password = "Yoho1mes"
+    time.sleep(1)
+    # login
+    login = 'n'
+    driver.find_element('name', 'email').send_keys(username)
+    driver.find_element('name',  'pass').send_keys(password)
+    time.sleep(2)
+    # find the login button by its aria-label attribute
+    login_button = driver.find_element(By.CSS_SELECTOR, "[aria-label='Accessible login button']")
+    # click the login button
+    login_button.click()
+    time.sleep(1)
+
 def scroll_down(driver, iterations):
     print(colored("\nscrolling... ", 'green'))
     # print(colored("iteration: " + str(iteration + 1), 'blue'))
-    for iteration in tqdm(range(10)):
+    for iteration in tqdm(range(iterations)):
         scroll_pause_time = 1
 
         # Get scroll height
@@ -121,9 +136,40 @@ def merge_data(new_data, old_data, duplicate_columns):
     duplicates = data_before_dropping_duplicates_length - data_after_dropping_duplicates_length
     return data, duplicates
 
+def scrape(driver, search_item, search_location, search_location_code, path, depth):
+    print(break_)
+    print("searching for: " + search_item)
+    print("location: ", search_location)
+    url = 'https://www.facebook.com/marketplace/' + search_location_code + '/' + search_item
+
+    # open driver and get soup
+    print("\nOpening driver...")
+    driver.get(url)
+    scroll_down(driver, depth)
+
+    soup             = BeautifulSoup(driver.page_source, 'html.parser')
+    new_data         = extract_data_from_soup(soup)
+    new_data = new_data.dropna(subset=['title'])
+    new_data = new_data[~new_data['title'].str.contains('hot wheel|toy|disney|hotwheels|Pixar|Fast And Furious', case=False)]
+    # remove to car rows lol
+    old_data         = pd.read_csv(path)
+    data, duplicates = merge_data(new_data, old_data, duplicate_columns=['title','mileage','price','location'])
+    # results
+    old_data_length = len(old_data)
+    data_length = len(data)
+    print(data)
+    change = data_length - old_data_length
+    print(colored("rows extracted from web page: " + str(len(new_data)), 'yellow'))
+    print(colored("duplicate rows detected: " + str(duplicates), 'red'))
+    print(colored("net rows added: "          + str(change), 'green'))
+    print(colored("location(s): " + search_location, 'magenta'))
+    print(break_)
+    print(colored('\ntotal rows: '+ str(data_length)+'\n', 'green'))
+
+    if change != 0:
+        data.to_csv(path, index = False)
+
 def main():
-    username = "7193385009"
-    password = "Yoho1mes"
     # declare path variables
     driver_path     = r'./Facebook Marketplace Project/chromedriver.exe'
     data_cities     = './Facebook Marketplace Project/data/data_cities.csv'
@@ -134,71 +180,22 @@ def main():
     data_cities = pd.read_csv(data_cities)
     driver = open_driver(driver_path)
     driver.get(url)
-    time.sleep(1)
-    # login
-    login = 'n'
-    driver.find_element('name', 'email').send_keys(username)
-    driver.find_element('name',  'pass').send_keys(password)
-    time.sleep(1)
-    # find the login button by its aria-label attribute
-    login_button = driver.find_element(By.CSS_SELECTOR, "[aria-label='Accessible login button']")
-    # click the login button
-    login_button.click()
-    time.sleep(1)
+    login(driver)
 
     # if login != "y":
         # login = input("Are you logged in? (y/n)\n")
 
-    for index, row in data_cities.head(3).iterrows():
+    for index, row in data_cities.iterrows():
         row = list(row)
         search_location      = row[0]
         search_location_code = row[1]
         search_item          = "cars"
+        scrape(driver, search_item, search_location, search_location_code, path, 3)
 
-        print(break_)
-        print("searching for: " + search_item)
-        print("location: ", search_location)
-        url = 'https://www.facebook.com/marketplace/' + search_location_code + '/' + search_item
-
-        # open driver and get soup
-        print("\nOpening driver...")
-        driver.get(url)
-        scroll_down(driver, 3)
-
-        soup             = BeautifulSoup(driver.page_source, 'html.parser')
-        new_data         = extract_data_from_soup(soup)
-        new_data = new_data.dropna(subset=['title'])
-        new_data = new_data[~new_data['title'].str.contains('hot wheel|toy|disney|hotwheels|Pixar|Fast And Furious', case=False)]
-        # remove to car rows lol
-        old_data         = pd.read_csv(path)
-        data, duplicates = merge_data(new_data, old_data, duplicate_columns=['title','mileage','price','location'])
-        # results
-        old_data_length = len(old_data)
-        data_length = len(data)
-        print(data)
-        change = data_length - old_data_length
-        print(colored("rows extracted from web page: "          + str(len(new_data)), 'yellow'))
-        print(colored("duplicate rows detected: " + str(duplicates), 'red'))
-        print(colored("net rows added: "          + str(change), 'green'))
-        print(colored("location(s): " + search_location, 'magenta'))
-        print(break_)
-        print(colored('\ntotal rows: '+ str(data_length)+'\n', 'green'))
-
-        if change != 0:
-            data.to_csv(path, index = False)
-            # if os.path.exists(path):
-                # data.to_csv(path_today, index = False)
     driver.minimize_window()
     driver.close()
     driver.quit()
     
-    # data_cities.to_csv(path_cities, index=False)
-    # data_cities = pd.read_csv(path)
-    # search_location = list(cities_dict.keys())[4]
-    # search_location = "denver"
-
-
-
 if __name__ == "__main__":
     main()
     
@@ -253,6 +250,7 @@ if __name__ == "__main__":
 # # Drop rows that contain "hot wheel", "toy", "disney" somewhere in the cell of the column title
 # data = data.dropna(subset=['title'])
 # data = data[~data['title'].str.contains('hot wheel|toy|disney', case=False)]
-
+# 10ud2
 # # filtered_data.to_csv('../data/doodoo_trash.csv')
 # data.to_csv('../data/cars_total.csv', index=False)
+#%%
