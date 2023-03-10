@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 # pd.set_option("display.max_rows", 120)
 # pd.set_option('display.max_colwidth', -1)
-break_ = colored("---------------------------------------------------------------------", 'yellow')
+break_ = colored("---------------------------------------------------------------------", 'green')
 
 def open_driver(driver_path):
     """ Opens drivers to specific url and grabs soup
@@ -39,11 +39,13 @@ def login(driver):
     # click the login button
     login_button.click()
     time.sleep(1)
+    print(colored("LOGIN SUCCESSFUL", "green"))
+    print(break_)
 
-def scroll_down(driver, iterations):
+def scroll_down(driver, number_of_scrolls):
     print(colored("\nscrolling... ", 'green'))
     # print(colored("iteration: " + str(iteration + 1), 'blue'))
-    for iteration in tqdm(range(iterations)):
+    for scroll in tqdm(range(number_of_scrolls)):
         scroll_pause_time = 1
 
         # Get scroll height
@@ -136,7 +138,7 @@ def merge_data(new_data, old_data, duplicate_columns):
     duplicates = data_before_dropping_duplicates_length - data_after_dropping_duplicates_length
     return data, duplicates
 
-def scrape(driver, search_item, search_location, search_location_code, path, depth):
+def scrape(driver, search_item, search_location, search_location_code, path, number_of_scrolls):
     print(break_)
     print("searching for: " + search_item)
     print("location: ", search_location)
@@ -145,12 +147,13 @@ def scrape(driver, search_item, search_location, search_location_code, path, dep
     # open driver and get soup
     print("\nOpening driver...")
     driver.get(url)
-    scroll_down(driver, depth)
+    scroll_down(driver, number_of_scrolls)
 
     soup             = BeautifulSoup(driver.page_source, 'html.parser')
     new_data         = extract_data_from_soup(soup)
     new_data = new_data.dropna(subset=['title'])
     new_data = new_data[~new_data['title'].str.contains('hot wheel|toy|disney|hotwheels|Pixar|Fast And Furious', case=False)]
+    new_locations = new_data.groupby('location').count().reset_index()
     # remove to car rows lol
     old_data         = pd.read_csv(path)
     data, duplicates = merge_data(new_data, old_data, duplicate_columns=['title','mileage','price','location'])
@@ -162,7 +165,8 @@ def scrape(driver, search_item, search_location, search_location_code, path, dep
     print(colored("rows extracted from web page: " + str(len(new_data)), 'yellow'))
     print(colored("duplicate rows detected: " + str(duplicates), 'red'))
     print(colored("net rows added: "          + str(change), 'green'))
-    print(colored("location(s): " + search_location, 'magenta'))
+    print(colored("location(s): " , 'magenta'))
+    print(colored(new_locations[['location', 'title']].sort_values(by='title', ascending=False), 'magenta'))
     print(break_)
     print(colored('\ntotal rows: '+ str(data_length)+'\n', 'green'))
 
@@ -174,7 +178,7 @@ def main():
     driver_path     = r'./Facebook Marketplace Project/chromedriver.exe'
     data_cities     = './Facebook Marketplace Project/data/data_cities.csv'
     path            = './Facebook Marketplace Project/data/cars_total.csv'
-    path_today      = './Facebook Marketplace Project/data/cars_total_' + str(date.today()) + '.csv'
+    # path_today      = './Facebook Marketplace Project/data/cars_total_' + str(date.today()) + '.csv'
     url             = 'https://www.facebook.com/marketplace/phoenix/cars'
 
     data_cities = pd.read_csv(data_cities)
@@ -182,15 +186,12 @@ def main():
     driver.get(url)
     login(driver)
 
-    # if login != "y":
-        # login = input("Are you logged in? (y/n)\n")
-
-    for index, row in data_cities.iterrows():
+    for index, row in data_cities.head(1).iterrows():
         row = list(row)
         search_location      = row[0]
         search_location_code = row[1]
         search_item          = "cars"
-        scrape(driver, search_item, search_location, search_location_code, path, 3)
+        scrape(driver, search_item, search_location, search_location_code, path, 10)
 
     driver.minimize_window()
     driver.close()
@@ -201,6 +202,7 @@ if __name__ == "__main__":
     
     # wait_time = random.randint(0, 300*60)/99
     # print('Waiting:', round(wait_time), "seconds,",round(wait_time/60),"mins to run again.")
+
 
 
 # git add .
