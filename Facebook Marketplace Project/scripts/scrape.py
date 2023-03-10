@@ -40,13 +40,11 @@ def login(driver):
     login_button.click()
     time.sleep(1)
     print(colored("LOGIN SUCCESSFUL", "green"))
-    print(break_)
 
 def scroll_down(driver, number_of_scrolls):
-    print(colored("\nscrolling... ", 'green'))
+    print(colored("\nscrolling on: " + driver.current_url, 'green'))
     # print(colored("iteration: " + str(iteration + 1), 'blue'))
     for scroll in tqdm(range(number_of_scrolls)):
-        scroll_pause_time = 1
 
         # Get scroll height
         last_height = driver.execute_script("return document.body.scrollHeight")
@@ -56,7 +54,7 @@ def scroll_down(driver, number_of_scrolls):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
             # Wait to load page
-            time.sleep(scroll_pause_time)
+            time.sleep(.7)
 
             # Calculate new scroll height and compare with last scroll height
             new_height = driver.execute_script("return document.body.scrollHeight")
@@ -186,7 +184,7 @@ def main():
     driver.get(url)
     login(driver)
 
-    for index, row in data_cities.head(1).iterrows():
+    for index, row in data_cities.head(5).iterrows():
         row = list(row)
         search_location      = row[0]
         search_location_code = row[1]
@@ -200,59 +198,7 @@ def main():
 if __name__ == "__main__":
     main()
     
-    # wait_time = random.randint(0, 300*60)/99
-    # print('Waiting:', round(wait_time), "seconds,",round(wait_time/60),"mins to run again.")
-
-
 
 # git add .
 # git commit -m "awesomeness"
 # git push
-
-# path            = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars.csv'
-# data = pd.read_csv(path)
-
-# data_before_dropping_duplicates_length = len(data)
-# data = data.drop_duplicates(subset = ['title','mileage','location'], keep='last')
-# data_after_dropping_duplicates_length = len(data)
-# duplicates = data_before_dropping_duplicates_length - data_after_dropping_duplicates_length
-
-# print(duplicates)
-# print(data[data.duplicated(['title', 'mileage', 'location'], keep=False)])
-
-
-#     # try:
-#     #     driver.find_element_by_class_name(class_name).click()
-#     # except:
-#     #     print("No Click.")
-#     time.sleep(3)
-#     login_button = soup.find('div', {'aria-label':'Accessible login button'})
-#     login_button.click()
-#     time.sleep(3)
-
-#     username = soup.find('input' , {'name':"email"})
-#     password = soup.find('input' , {'name':"pass"})
-#     # password = soup.find_element_by_id("pass")
-#     # submit   = soup.find_element_by_id("loginbutton")
-#     username.send_keys(username)
-#     password.send_keys(password)
-#     time.sleep(3)
-
-#     submit = soup.find('button' , {'name' : 'login'})
-#     submit.click()
-#     time.sleep(3)
-#     return driver
-
-
-#%%
-# import pandas as pd
-
-# data = pd.read_csv('../data/cars_total.csv')
-
-# # Drop rows that contain "hot wheel", "toy", "disney" somewhere in the cell of the column title
-# data = data.dropna(subset=['title'])
-# data = data[~data['title'].str.contains('hot wheel|toy|disney', case=False)]
-# 10ud2
-# # filtered_data.to_csv('../data/doodoo_trash.csv')
-# data.to_csv('../data/cars_total.csv', index=False)
-#%%
