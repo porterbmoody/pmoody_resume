@@ -2,17 +2,14 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 import time
 import random
 import pandas as pd
 from termcolor import colored
 from datetime import date
-import os
-from time import sleep
 from tqdm import tqdm
 
-# pd.set_option("display.max_rows", 120)
-# pd.set_option('display.max_colwidth', -1)
 break_ = colored("---------------------------------------------------------------------", 'green')
 
 def open_driver(driver_path):
@@ -152,7 +149,8 @@ def scrape(driver, search_item, search_location, search_location_code, path, num
     new_data = new_data.dropna(subset=['title'])
     new_data = new_data[~new_data['title'].str.contains('hot wheel|toy|disney|hotwheels|Pixar|Fast And Furious', case=False)]
     new_locations = new_data.groupby('location').count().reset_index()
-    # remove to car rows lol
+
+    # remove old car rows lol
     old_data         = pd.read_csv(path)
     data, duplicates = merge_data(new_data, old_data, duplicate_columns=['title','mileage','price','location'])
     # results
@@ -184,7 +182,8 @@ def main():
     driver.get(url)
     login(driver)
 
-    for index, row in data_cities.head(5).iterrows():
+    data_cities = data_cities
+    for index, row in data_cities.iterrows():
         row = list(row)
         search_location      = row[0]
         search_location_code = row[1]
@@ -194,10 +193,16 @@ def main():
     driver.minimize_window()
     driver.close()
     driver.quit()
-    
+
 if __name__ == "__main__":
+    start_time = time.time()
     main()
-    
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+
+    print("Elapsed time: {:.2f} seconds".format(elapsed_time))
+
 
 # git add .
 # git commit -m "awesomeness"

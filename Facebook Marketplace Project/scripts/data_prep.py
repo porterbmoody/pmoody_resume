@@ -16,6 +16,8 @@ path = '../data/cars_total.csv'
 data = pd.read_csv(path)
 data
 
+
+
 #%%
 # remove trash
 data = data[~data['title'].isna()]
@@ -85,8 +87,12 @@ print(data.isna().sum())
 
 data
 #%%
-data = (data.query("price < 500000")
-        .query("mileage < 500000"))
+# remove just utter garbage trash
+data['year'] = pd.to_numeric(data['year'], errors='coerce')
+
+data = (data.query("price < 100000")
+        .query("mileage < 450000")
+        .query("year > 1990 & year < 2024"))
 data
 
 #%%
@@ -97,35 +103,104 @@ alt.Chart(data.query("location == 'Phoenix, AZ' | location == 'Colorado Springs,
     color = "location"
 ).mark_point()
 
+# data.drop(['location'], axis = 1, inplace = True)
 
-# #%%
-# alt.Chart(data.query('maker == "nissan"')).encode(
-#     x = "mileage",
-#     y = "price"
-# ).mark_point()
+#%%
 
-# #%%
-# list(data['maker'].unique())
+################### visualizationssssssss
 
-# #%%
-
-# data.query('maker == "honda"').hist()
-
-# #%%
-# data.query('maker == "nissan"').hist()
-
-# #%%
-# data.query('maker == "chevrolet"').hist()
-
-# #%%
-
-data.drop(['location'], axis = 1, inplace = True)
 
 # %%
+data.groupby('maker').count().sort_values(by = 'year')
 
+#%%
+# data.query("maker == 'honda'").hist('price', bins = 40)
+
+alt.Chart(data.query("maker == 'honda'")).encode(x="mileage",y='price').mark_point()
+
+#%%
+alt.Chart(data.query("maker == 'nissan'")).encode(x="mileage",y='price').mark_point()
+
+# print(data.query("maker == 'honda'")['price'].mean())
+# data.query("maker == 'honda'")['price'].median()
+#%%
+top_makers = data['maker'].value_counts().nlargest(10).index.tolist()
+
+# Filter the data to only include the top 10 makers
+filtered_data = data[data['maker'].isin(top_makers)]
+data_grouped = filtered_data.groupby(['year', 'maker']).count().reset_index().sort_values(by = 'mileage',ascending=False)
+chart = alt.Chart(data_grouped).mark_bar().encode(
+    x='year:N',
+    y='title',
+    color=alt.Color('maker', scale=alt.Scale(scheme='category20')),
+    column=alt.Column('maker', sort=['-title'])
+).properties(
+    title='Car manufactur year frequencies for top 10 most common makers on Facebook Marketplace in the past 2 week for the nation',
+    height=400
+).configure_axis(
+    labelFontSize=12,
+    titleFontSize=14
+).configure_title(
+    fontSize=16
+)
+
+# Change the y-axis label to "count"
+chart = chart.configure_axisY(
+    title='Count'
+)
+
+chart
+#%%
+
+
+top_makers = data['maker'].value_counts().nlargest(10).index.tolist()
+filtered_data = data[data['maker'].isin(top_makers)]
+
+data_grouped = filtered_data.groupby(['maker'])
+
+
+#%%
+
+
+# Extract top 10 makers by number of products
+top_makers = data['maker'].value_counts().nlargest(10).index.tolist()
+
+# Filter the data by top 10 makers
+filtered_data = data[data['maker'].isin(top_makers)]
+
+# Create a histogram plot for each maker
+hist = alt.Chart(filtered_data).mark_bar(opacity=0.5).encode(
+    x='price:Q',
+    y=alt.Y('count():Q', title='Frequency'),
+    color=alt.Color('maker:N', scale=alt.Scale(scheme='category20')),
+    column=alt.Column('maker:N', header=alt.Header(title=None))
+).properties(
+    width=800,
+    height=200
+)
+
+# Concatenate the plots horizontally
+hist = hist.properties(title='Top 10 Makers Distributions of Price').configure_title(
+    fontSize=18,
+    anchor='middle'
+).configure_header(labelFontSize=14)
+
+hist = hist.configure_axis(
+    labelFontSize=12,
+    titleFontSize=14,
+)
+
+hist = hist.configure_legend(
+    titleFontSize=14,
+    labelFontSize=12
+)
+
+hist = hist.configure_view(strokeWidth=0)
+
+hist
+
+
+# %%
 data.to_csv('C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace Project/data/cars_clean.csv',index=False)
-
-
-
 
 # %%

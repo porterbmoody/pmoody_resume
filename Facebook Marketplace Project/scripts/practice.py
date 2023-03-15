@@ -79,3 +79,73 @@ X_test = scaler.transform(X_test)
 # y_train = y_train.astype(float)
 # y_test = y_test.astype(float)
 X_train
+
+
+
+#%%
+
+#################### practice
+from sklearn.feature_extraction.text import CountVectorizer
+import pandas as pd
+
+path = '../data/cars_clean.csv'
+data = pd.read_csv(path).dropna(subset=['title'])
+list(data['title'])
+
+
+
+#%%
+count_vectorizer = CountVectorizer(stop_words='english', min_df=100)
+count_vector = count_vectorizer.fit_transform(data['title'])
+vocabulary = count_vectorizer.vocabulary_
+
+print("Count vector:\n", count_vector.toarray())
+print("Vocabulary:\n", vocabulary)
+
+#%%
+
+import torch
+from transformers import GPT2Tokenizer, GPT2LMHeadModel, TextDataset, DataCollatorForLanguageModeling, Trainer, TrainingArguments
+
+# Load pre-trained GPT-2 tokenizer
+tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+
+# Load text corpus
+with open('text_corpus.txt', 'r', encoding='utf-8') as f:
+    text_corpus = f.read()
+
+# Tokenize text corpus
+tokenized_text = tokenizer.encode(text_corpus)
+
+# Create dataset from tokenized text
+dataset = TextDataset(tokenized_text, tokenizer=tokenizer)
+
+# Create data collator for language modeling
+data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+
+# Load pre-trained GPT-2 model
+model = GPT2LMHeadModel.from_pretrained('gpt2')
+
+# Define training arguments
+training_args = TrainingArguments(
+    output_dir='./output',
+    overwrite_output_dir=True,
+    num_train_epochs=3,
+    per_device_train_batch_size=16,
+    save_steps=5000,
+    save_total_limit=2
+)
+
+# Create trainer and train model
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=dataset,
+    data_collator=data_collator,
+)
+trainer.train()
+
+# Save trained model
+trainer.save_model('trained_model')
+
+#%%

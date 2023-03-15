@@ -13,46 +13,24 @@ path_clean = 'C:/Users/porte/Desktop/coding/pmoody_resume/Facebook Marketplace P
 data = pd.read_csv(path_clean)
 data = data.dropna()
 
-############### prepare data for model
-#### create stopwords list for title
-# Splitting each sentence into a list of words
-
-# Creating a list of all words in the dataframe
-all_words = []
-for words_list in data['title'].str.split():
-    all_words += words_list
-
-# Creating a dictionary to count the frequency of each word
-word_freq = {}
-for word in all_words:
-    if word not in word_freq:
-        word_freq[word] = 1
-    else:
-        word_freq[word] += 1
-
-# Creating a dataframe with the word and its frequency
-word_freq_df = pd.DataFrame(list(word_freq.items()), columns=['word', 'frequency']).reset_index().sort_values(by = 'frequency',ascending=False)
-stop_words = list(word_freq_df.query("frequency > 300")['word'])
-stop_words
 
 #%%
-from sklearn.feature_extraction.text import TfidfVectorizer
+
+############### prepare data for model
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import LabelEncoder
 
 ## encode maker column
 le = LabelEncoder()
 data['maker'] = le.fit_transform(data['maker'])
 
-vectorizer = TfidfVectorizer(stop_words=stop_words, min_df=len(stop_words))
+vectorizer = CountVectorizer(stop_words='english', max_features=100)
 title_vectorized = vectorizer.fit_transform(data['title'])
 
 feature_names = list(vectorizer.vocabulary_.keys())
 print(feature_names)
 
 #%%
-
-# not_stop_words = [word for word in feature_names if word not in stop_words]
-# print(not_stop_words)
 
 VectorizedText=pd.DataFrame(title_vectorized.toarray(), 
                             columns=feature_names)
@@ -101,11 +79,26 @@ def r_squared(y_true, y_pred):
 model = Sequential()
 model.add(Dense(64, activation='relu', input_dim=X.shape[1]))
 model.add(Dense(128, activation='relu'))
+model.add(Dense(128, activation='relu'))
 model.add(Dense(1, activation='linear'))
 
 model.compile(optimizer='adam', loss='mse',metrics=[r_squared])
+ 
+model.fit(X_train, y_train, epochs=100, batch_size=32)#validation_data=(X_test, y_test)
 
-model.fit(X_train, y_train, epochs=100, batch_size=64, validation_data=(X_test, y_test))
+#%%
+loss, r2 = model.evaluate(X_test, y_test)
+print('Loss:', loss)
+print('R-squared:', r2)
+
+# feature_names = np.array(data.columns)
+importance = np.abs(model.coef_)
+print(feature_names)
+print(importance)
+
+#%%
+
+
 
 #%%
 # extra trees
@@ -129,4 +122,5 @@ print('Mean Squared Error:', mse)
 print('Root Mean Squared Error:', rmse)
 
 #%%
+
 
