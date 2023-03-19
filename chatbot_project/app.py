@@ -1,11 +1,15 @@
-from flask import Flask, render_template
+from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
-@app.route('/process_response', methods=['POST'])
-def process_response(response):
-    print("response")
-    return 'did you really just say:' + response + "??!!"
+@app.route('/process_response', methods=['POST', 'GET'])
+def process_response():
+    if request.method == "POST":
+        user_message = request.get_json()['message']
+        bot_message = 'did you really just say: ' + user_message + '??!!'
+        return jsonify({'message': bot_message}), 200
+    else:
+        return "This route only accepts POST requests."
 
 @app.route('/')
 def home():

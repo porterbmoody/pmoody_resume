@@ -7,34 +7,39 @@ function sendUserMessage(event) {
   event.preventDefault();
   const message = inputMessage.value.trim();
   if (message !== "") {
+    console.log(message);
     const userMessage = document.createElement("div");
     userMessage.className = "user-message";
     userMessage.textContent = message;
     chatContainer.appendChild(userMessage);
     inputMessage.value = "";
     
-    // Send user message to server and receive response
     $.ajax({
       type: "POST",
       url: "/process_response",
-      data: { message: message },
+      contentType: "application/json",
+      dataType: 'json',
+      data: JSON.stringify({ message: message }),
       success: function(response) {
+        console.log("ajax request");
         const botMessage = document.createElement("div");
         botMessage.className = "bot-message";
         botMessage.textContent = response.message;
         chatContainer.appendChild(botMessage);
       },
       error: function(xhr) {
+        console.log("epic failure");
         console.error(xhr.responseText);
       }
     });
-
   }
 }
 
+
+
 function handleKeyDown(event) {
   if (event.key === "Enter") {
-    sendUserMessage();
+    sendUserMessage(event);
   }
 }
 

@@ -8,11 +8,10 @@ body {
     align-items: center;
     justify-content: center;
     height: 100vh;
-  }
-  
+}
+
 /* Chat container style */
 .chat-container {
-  border: 1px solid #ccc;
   width: 579px;
   height: 300px; /* set a fixed height */
   overflow-y: auto; /* add a scroll bar */
@@ -21,55 +20,63 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  background-color: white;
+  background-color: grey;
+  border-radius: 10px; /* add rounded corners */
 }
-  
-  /* User message style */
-  .user-message {
-    background-color: #e6e6e6;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    width: 70%;
-    align-self: flex-end;
-  }
-  
-  /* Bot message style */
-  .bot-message {
-    background-color: #f2f2f2;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    width: 70%;
-    align-self: flex-start;
-  }
-  
-  /* Input message style */
-  .input-message {
-    border: 1px solid #ccc;
-    padding: 10px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  /* Send button style */
-  .send-button {
-    background-color: #4CAF50;
-    color: black;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 60px;
-    margin-left: 10px;
-  }
-  
-  /* Input container style */
-  .input-container {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Add this line */
-    margin-top: 10px;
-    width: 603px;
-  }
-  
+
+/* User message style */
+.user-message {
+  background-color: #e6e6e6;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  width: 70%;
+  align-self: flex-end;
+}
+
+/* Bot message style */
+.bot-message {
+  background-color: #f2f2f2;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  width: 70%;
+  align-self: flex-start;
+}
+
+/* Input message style */
+.input-message {
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Send button style */
+.send-button {
+  background-color: hotpink;
+  color: black;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 60px;
+  margin-left: 10px;
+}
+
+/* Input container style */
+.input-container {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Add this line */
+  margin-top: 10px;
+  width: 603px;
+  color: grey;
+}
+
+.chatgpt-title {
+  color: hotpink;
+  font-size: 3em; /* make the font bigger */
+  margin-top: 30px; /* add some margin */
+  text-align: center; /* center the text */
+}

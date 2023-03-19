@@ -6,9 +6,12 @@
   </head>  
   <body>
     <div class="container">
+      <div class="title-container">
+        <h1 class="chatgpt-title" class="title-message">CHATGPT (BUT COOLER)</h1>
+      </div>
       <form id="chat-form">
         <div class="chat-container">
-          <div class="bot-message">Welcome to chatgpt porter moody edition</div>
+          <div class="bot-message">Welcome to ChatGPT Porter Moody Edition</div>
         </div>
         <div class="input-container">
           <input type="text" placeholder="Type your message here..." class="input-message" name="message" />
@@ -16,6 +19,7 @@
         </div>
       </form>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ url_for('static', filename= 'js/script.js') }}"></script>
   </body>
 </html>
