@@ -8,8 +8,6 @@ def index(request):
     """Render the index page"""
     return render(request, 'index.html')
 
-
-
 def chatbot_view(request):
     if request.method == 'POST':
         message = request.POST.get('message')
@@ -19,3 +17,6 @@ def chatbot_view(request):
         return JsonResponse(data)
     else:
         return render(request, 'chat.html')  # render a chat page with a form for user input
+
+def test():
+    print("this is a test")
