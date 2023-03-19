@@ -6,13 +6,15 @@
   </head>  
   <body>
     <div class="container">
-      <div class="chat-container">
-        <div class="bot-message">Welcome to the most epic chatbot in the world!!!!?</div>
-      </div>
-      <div class="input-container">
-        <input type="text" placeholder="Type your message here..." class="input-message" />
-        <button type="button" class="send-button">Send</button>
-      </div>
+      <form id="chat-form">
+        <div class="chat-container">
+          <div class="bot-message">Welcome to chatgpt porter moody edition</div>
+        </div>
+        <div class="input-container">
+          <input type="text" placeholder="Type your message here..." class="input-message" name="message" />
+          <button type="submit" class="send-button">Send</button>
+        </div>
+      </form>
     </div>
     <script src="{{ url_for('static', filename= 'js/script.js') }}"></script>
   </body>

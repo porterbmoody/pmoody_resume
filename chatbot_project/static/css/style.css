@@ -1,5 +1,5 @@
 body {
-  background-color: grey;
+  background-color: #333;
 }
 /* Container style */
 .container {
@@ -10,18 +10,19 @@ body {
     height: 100vh;
   }
   
-  /* Chat container style */
-  .chat-container {
-    border: 1px solid #ccc;
-    width: 579px;
-    max-height: 600px;
-    overflow-y: scroll;
-    padding: 10px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-  }
+/* Chat container style */
+.chat-container {
+  border: 1px solid #ccc;
+  width: 579px;
+  height: 300px; /* set a fixed height */
+  overflow-y: auto; /* add a scroll bar */
+  padding: 10px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background-color: white;
+}
   
   /* User message style */
   .user-message {
@@ -69,6 +70,6 @@ body {
     align-items: center;
     justify-content: center; /* Add this line */
     margin-top: 10px;
-    width: 579px;
+    width: 603px;
   }
   
