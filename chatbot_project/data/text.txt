@@ -1,0 +1,88 @@
+SocketXP
+Products
+Features
+Industries
+Pricing
+Blog
+Docs
+Contact
+Sign in
+Try for free
+Home
+iot
+How to Access Python Flask App from Internet
+
+How to Access Python Flask App from Internet
+Author: Ganesh Velrajan
+
+Last Updated: Fri, Sep 24, 2021
+
+Let’s assume you have a Python flask web application that runs in your personal laptop or in a server or in a Raspberry Pi in your office LAN network.
+
+Anyone outside of your office network cannot access the flask web application because the application runs in your local network.
+
+Suppose, let’s say, you want to expose the flask app to the internet, so that your customers or remote employees can access the flask app from the internet.
+
+Today, there are two ways to expose your flask application to the internet.
+
+Deploy the web application in your office server which has a public IP address and domain name.
+Deploy the web application in the cloud such as AWS, MS Azure, GCP or web hosting companies like GoDaddy, SiteGround, A2Hosting etc.
+Both of the above options cost more money and more effort in terms of purchasing your own IP address, domain name, configuring and managing them.
+
+To address the above problems and provide an alternate cost-effective solution, we have created SocketXP.
+
+What is SocketXP
+SocketXP is a simple, quick and cost-effective way to deploy your web application online.
+
+How it works?
+remote-access-flask-app-from-internet
+Run your flask web application in any server or laptop in your office LAN network.
+Download SocketXP Client and install in the office server or laptop
+SocketXP Client will create a secure tunnel from your server to the SocketXP Cloud Gateway.
+SocketXP Cloud Service will provide a public tunnel endpoint (Public IP address and port) that you can use to access your python flask web application from the internet.
+A Quick Demo:
+Let’s use the following simple Python flask web application for the demo.
+
+$ cat myapp.py
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return '<h2>Hello, World!</h2>'
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=3000, debug=True)
+Run the myapp.py on a local server or laptop.
+
+$ python myapp.py
+Using a browser, let’s point to http://localhost:3000 to connect to the flask web application.
+remote-access-flask-app-from-internet
+Right now the flask application can be accessed only by you because it runs on your laptop.
+
+Now to make the python flask application accessible from the internet, let’s download and run the SocketXP Client from the download page.
+
+Next authenticate and register the SocketXP Client with the SocketXP Cloud Gateway, using the auth-token from the Portal Page
+
+remote-access-flask-app-from-internet
+Click the copy button to copy the command string and paste it in the terminal window in your laptop or server.
+
+$ socketxp login "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+After registering the SocketXP Client with the SocketXP Cloud Service, you could create HTTP proxy tunnel between the application running in your laptop and the SocketXP Cloud Service, via the SocketXP Client.
+
+As our flask app is a web application(HTTP server), let’s create a HTTP proxy tunnel.
+
+Expose flask app to the internet
+Use the following command to create a HTTP proxy tunnel between the flask web application and the SocketXP Cloud Gateway. This will generate a public web URL. Use the SocketXP public web URL to expose your flask app to the internet.
+
+$socketxp connect http://localhost:3000
+Public URL -> https://679aa48b-1162-44f7-b6c6-59129dd68b58.socketxp.com
+Let’s access the flask web application from the internet using the SocketXP Public URL provided in the above output.
+
+remote-access-flask-app-from-internet
+You could now share the above link with your customers or remote employees, so that they could access your web application from anywhere in the world. 
+
+The above SocketXP public URL is a permanent link just assigned to you and it doesn’t change until you manually delete it from the HTTP tunnels section in the portal.
+
+© Copyright Ampas Labs Inc. 2023.
+All Rights Reserved

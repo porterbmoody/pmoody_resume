@@ -42,6 +42,7 @@ body {
   margin-bottom: 10px;
   width: 70%;
   align-self: flex-start;
+  font-family: 'Tangerine', serif;
 }
 
 /* Input message style */
@@ -50,11 +51,12 @@ body {
   padding: 10px;
   width: 100%;
   box-sizing: border-box;
+  font-family: 'Verdana', serif;
 }
 
 /* Send button style */
 .send-button {
-  background-color: hotpink;
+  background-color: lightblue;
   color: black;
   border: none;
   padding: 10px;
@@ -64,19 +66,51 @@ body {
   margin-left: 10px;
 }
 
+/* Refresh button style */
+.refresh-button {
+  color: black;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 80px;
+  margin-right: 10px; /* add some margin to the right */
+  background: linear-gradient(to right, #e0e0e0 20% , #f0f0f0 30%, rgb(97, 30, 255) 10%);
+  background-size: 400% 100%;
+  background-clip: text;
+  /* -webkit-background-clip: text; */
+  /* -webkit-text-fill-color: transparent; */
+  animation: shimmer 6s linear infinite;
+  background-color: white;
+}
+
 /* Input container style */
 .input-container {
   display: flex;
   align-items: center;
-  justify-content: center; /* Add this line */
+  justify-content: space-between; /* change from center to space-between */
   margin-top: 10px;
   width: 603px;
   color: grey;
 }
 
-.chatgpt-title {
-  color: hotpink;
-  font-size: 3em; /* make the font bigger */
-  margin-top: 30px; /* add some margin */
-  text-align: center; /* center the text */
+
+.swaggpt-title {
+  font-family: 'Roboto Slab', serif;
+  font-size: 3em;
+  margin-top: 30px;
+  text-align: center;
+  background: linear-gradient(to right, rgb(97, 30, 255) 10%, #e0e0e0 20%, #f0f0f0 30%);
+  background-size: 400% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 6s linear infinite;
 }
+
+@keyframes shimmer {
+  to {
+    background-position: 250% center;
+  }
+}
+

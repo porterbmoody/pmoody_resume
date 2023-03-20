@@ -35,8 +35,6 @@ function sendUserMessage(event) {
   }
 }
 
-
-
 function handleKeyDown(event) {
   if (event.key === "Enter") {
     sendUserMessage(event);
