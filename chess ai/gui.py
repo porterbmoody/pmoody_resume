@@ -7,100 +7,34 @@ import chess
 import chess.pgn
 import chess.engine
 import time
-#%%
-#################################################################################
-
-import chess
-import chess.engine
-
-def minimax_alpha_beta(board, depth=4, alpha=float('-inf'), beta=float('inf'), maximizing_player=True):
-    if depth == 0 or board.is_game_over():
-        return evaluate_board(board), None
-
-    if maximizing_player:
-        max_score = float('-inf')
-        best_move = None
-        for move in board.legal_moves:
-            board.push(move)
-            score, _ = minimax_alpha_beta(board, depth - 1, alpha, beta, False)
-            board.pop()
-            if score > max_score:
-                max_score = score
-                best_move = move
-            alpha = max(alpha, max_score)
-            if alpha >= beta:
-                break
-        return max_score, best_move
-    else:
-        min_score = float('inf')
-        best_move = None
-        for move in board.legal_moves:
-            board.push(move)
-            score, _ = minimax_alpha_beta(board, depth - 1, alpha, beta, True)
-            board.pop()
-            if score < min_score:
-                min_score = score
-                best_move = move
-            beta = min(beta, min_score)
-            if alpha >= beta:
-                break
-        return min_score, best_move
-
-def evaluate_board(board):
-    if board.is_checkmate():
-        if board.turn:
-            return -9999
-        else:
-            return 9999
-    piece_values = {
-        chess.PAWN: 1,
-        chess.KNIGHT: 3,
-        chess.BISHOP: 3,
-        chess.ROOK: 5,
-        chess.QUEEN: 9,
-        chess.KING: 0  # we don't want to move the king, so it has no value
-    }
-    score = 0
-    for square, piece in board.piece_map().items():
-        if piece.color == board.turn:
-            score += piece_values[piece.piece_type]
-        else:
-            score -= piece_values[piece.piece_type]
-    return score
-
-def get_best_move(board):
-    if board.turn == chess.WHITE:
-        score, move = minimax_alpha_beta(board, maximizing_player=True)
-    else:
-        score, move = minimax_alpha_beta(board, maximizing_player=False)
-    return move
+from ChessAI import ChessAI
 
 board = chess.Board()
+board
+chess_ai = ChessAI()
+chess_ai.get_best_move(board, depth = 3)
+
 #%%
 
-# move = minimax_alpha_beta(board, depth=3, alpha=float('-inf'), beta=float('inf'), maximizing_player=False)
-move = get_best_move(board)
-board.push(move)
+# move = chess_ai.get_best_move(board, depth = 5)
+# move = chess_ai.get_best_move_poop(board, depth = 4, is_maximizing_player=True)
+# board.push(move)
+
+move = "e2e4"
+board.push_san(move)
 board
-
-# while not board.is_game_over():
-#     if board.turn == chess.WHITE:
-#         _, move = minimax_alpha_beta(board, depth=3, alpha=float('-inf'), beta=float('inf'), maximizing_player=True)
-#         board.push(move)
-#     else:
-#         _, move = minimax_alpha_beta(board, depth=3, alpha=float('-inf'), beta=float('inf'), maximizing_player=False)
-#         board.push(move)
-
 
 
 #%%
 #################################################################################
 
-# Searching Ai's Move
-def get_ai_move():
-    move = get_best_move(board)
-    board.push(move)
-# Searching Stockfish's Move
+# # Searching Ai's Move
+# def get_ai_move(board):
+#     move = chess_ai.get_best_move(board, depth = 3)
+#     print("move:", move)
+#     board.push(move)
+
+# Searching Stockfish's Move    
 def stockfish():
     engine = chess.engine.SimpleEngine.popen_uci(
         "your_path/stockfish.exe")
@@ -118,8 +52,9 @@ def main():
     ret += '<form action="/game/" method="post"><button name="New Game" type="submit">New Game</button></form>'
     ret += '<form action="/undo/" method="post"><button name="Undo" type="submit">Undo Last Move</button></form>'
     ret += '<form action="/move/"><input type="submit" value="Make Human Move:"><input name="move" type="text"></input></form>'
-    ret += '<form action="/dev/" method="post"><button name="Comp Move" type="submit">Make Ai Move</button></form>'
-    ret += '<form action="/engine/" method="post"><button name="Stockfish Move" type="submit">Make Stockfish Move</button></form>'
+    ret += '<form action="/human_and_ai_move/"><input type="submit" value="human and ai move:"><input name="human_and_ai_move" type="text"></input></form>'
+    ret += '<form action="/dev/" method="post"><button name="ai move" type="submit">Make Ai Move</button></form>'
+    # ret += '<form action="/engine/" method="post"><button name="Stockfish Move" type="submit">Make Stockfish Move</button></form>'
     return ret
 # Display Board
 @app.route("/board.svg/")
@@ -134,11 +69,23 @@ def move():
     except Exception:
         traceback.print_exc()
     return main()
+@app.route("/human_and_ai_move/")
+def human_and_ai_move():
+    try:
+        move = request.args.get('human_and_ai_move', default="")
+        board.push_san(move)
+        if move != "":
+            print("ai move")
+            ai_move = chess_ai.get_best_move(board, depth = 3)
+            board.push(ai_move)
+    except Exception:
+        traceback.print_exc()
+    return main()
 # Make Ai’s Move
 @app.route("/dev/", methods=['POST'])
 def dev():
     try:
-        get_ai_move()
+        get_ai_move(board)
     except Exception:
         traceback.print_exc()
     return main()
@@ -169,3 +116,8 @@ def undo():
 board = chess.Board()
 webbrowser.open("http://127.0.0.1:5000/")
 app.run()
+
+
+
+## take salesman out of the process
+
