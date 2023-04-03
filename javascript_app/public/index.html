@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My JavaScript Page</title>
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <h1>Welcome to My JavaScript Page</h1>
+    
+    <p>Click the button to change the text:</p>
+    
+    <button id="myButton" onclick="changeText()">Click me</button>
+
+    <p>Pizza Button</p>
+    <button id="pizzaButton" onclick="sendPizzaRequest()">Awesome Pizza Button!!!!</button>
+
+    <script>
+      function sendPizzaRequest() {
+        const xhr = new XMLHttpRequest();
+
+        xhr.open('POST', '/changePizzaText');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            const newPizzaText = response.data.newPizzaText;
+           
