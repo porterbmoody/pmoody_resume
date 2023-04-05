@@ -3,58 +3,55 @@ import googlemaps
 from datetime import datetime
 import requests
 from selenium import webdriver
+import shutil
 driver_path = 'D:/Desktop/School/pmoody_resume/Facebook Marketplace Project/chromedriver.exe'
 
-def address_to_long_lat(address):
+address = "166 w 5 w apt d7 Rexburg Id 83440"
+zoom = '18'
+size = '400x400'
+maptype = 'satellite'
+static_map_key = 'AIzaSyBYZHD0dhidkig5nUiiCaDC6dDlEHiCzy8'
 
-    # Define the address to geocode
-    address = "1730 Alamosa Dr"
+static_map_url = f'https://maps.googleapis.com/maps/api/staticmap?center={address}&zoom={zoom}&size={size}&maptype={maptype}&key={static_map_key}'
+print(static_map_url)
 
-    # Define the API endpoint URL
-    url = f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key=YOUR_API_KEY"
+response = requests.get(static_map_url, stream=True)
 
-    # Send a GET request to the API endpoint
-    response = requests.get(url)
+with open('sav.png', 'wb') as out_file:
+    shutil.copyfileobj(response.raw, out_file)
 
-    # Parse the JSON response
-    data = response.json()
+# del response
 
-    # Extract the latitude and longitude coordinates
-    long = data["results"][0]["geometry"]["location"]["lng"]
-    lat = data["results"][0]["geometry"]["location"]["lat"]
-
-    print(f"Latitude: {lat}, Longitude: {long}")
-
-    return long, lat
-
-def get_image_from_api(image_download_path, url):
-    # url = 'https://maps.googleapis.com/maps/api/staticmap?center={}&zoom={}&size=400x400&maptype=roadmap&markers=color:red%7C&key=AIzaSyBYZHD0dhidkig5nUiiCaDC6dDlEHiCzy8'.format(40.714728, -73.998672, lat, lng)
-    options = webdriver.ChromeOptions()
-    options.add_argument('headless')
-    input("enter:")
-    driver = webdriver.Chrome(options=options)
-    input("enter:")
-    driver.get(url)
-    driver.save_screenshot(image_download_path)
-    input("enter:")
-    driver.quit()
+#%%
+# def address_to_long_lat(address, geocoding_key):
+#     geo_url = 'https://maps.googleapis.com/maps/api/geocode/json?address={}&key={}'.format(address, geocoding_key)
+#     print(geo_url)
+#     response = requests.get(geo_url)
+#     results = response.json()['results']
+#     print(results)
+#     my_geo = results[0]['geometry']['location']
+#     long, lat = my_geo['lng'], my_geo['lat']
+#     print("lat:",lat, "long:", long)
+#     return long, lat
 
 
 
-def main():
-    address = "1730 alamosa dr. colorado springs"
-    long, lat = address_to_long_lat(address = address)
-    zoom = 20   
-    size = '400x400'
-    api_key = 'AIzaSyBYZHD0dhidkig5nUiiCaDC6dDlEHiCzy8'
-    url = f"https://maps.googleapis.com/maps/api/staticmap?center={long},{lat}&zoom={zoom}&size={size}&key={api_key}"
-    print(url)
-    # image = get_image_from_api(image_download_path="swag.png", url=url)
+
+# geocoding_key = 'AIzaSyDqmrxYDo6AhcB803AImc6zFRTPBI9r7gk'
+# long, lat = address_to_long_lat(address, geocoding_key)
+# print(lat, long)
+
+
+
+
+
 
 
 # if __name__ == "__main()__":
     # main()
 # main()
+
+
 
 
 #%%
@@ -66,3 +63,6 @@ driver = webdriver.Chrome(executable_path = driver_path, options=options)
 input("enter:")
 driver.get(url)
 
+
+
+#%%
