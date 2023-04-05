@@ -43,9 +43,9 @@ class ChessAI:
     def eval_space(board):
         no_moves = len(list(board.legal_moves))
 
-        #this function is always between 0 and 1 so we will never evaluate
-        #this as being greater than a pawns value. The 20 value is arbitrary
-        #but this number is chosen as it centers value around 0.5
+        # this function is always between 0 and 1 so we will never evaluate
+        # this as being greater than a pawns value. The 20 value is arbitrary
+        # but this number is chosen as it centers value around 0.5
         value = (no_moves/(20+no_moves))
         
         if board.turn == True:

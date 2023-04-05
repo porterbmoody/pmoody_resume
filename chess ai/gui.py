@@ -31,15 +31,14 @@ board
 # # Searching Ai's Move
 # def get_ai_move(board):
 #     move = chess_ai.get_best_move(board, depth = 3)
-#     print("move:", move)
 #     board.push(move)
 
 # Searching Stockfish's Move    
-def stockfish():
-    engine = chess.engine.SimpleEngine.popen_uci(
-        "your_path/stockfish.exe")
-    move = engine.play(board, chess.engine.Limit(time=0.1))
-    board.push(move.move)
+# def stockfish():
+#     engine = chess.engine.SimpleEngine.popen_uci(
+#         "your_path/stockfish.exe")
+#     move = engine.play(board, chess.engine.Limit(time=0.1))
+#     board.push(move.move)
 app = Flask(__name__)
 # Front Page of the Flask Web Page
 @app.route("/")
@@ -51,9 +50,9 @@ def main():
     ret += '<img width=510 height=510 src="/board.svg?%f"></img></br></br>' % time.time()
     ret += '<form action="/game/" method="post"><button name="New Game" type="submit">New Game</button></form>'
     ret += '<form action="/undo/" method="post"><button name="Undo" type="submit">Undo Last Move</button></form>'
-    ret += '<form action="/move/"><input type="submit" value="Make Human Move:"><input name="move" type="text"></input></form>'
+    # ret += '<form action="/move/"><input type="submit" value="Make Human Move:"><input name="move" type="text"></input></form>'
     ret += '<form action="/human_and_ai_move/"><input type="submit" value="human and ai move:"><input name="human_and_ai_move" type="text"></input></form>'
-    ret += '<form action="/dev/" method="post"><button name="ai move" type="submit">Make Ai Move</button></form>'
+    # ret += '<form action="/dev/" method="post"><button name="ai move" type="submit">Make Ai Move</button></form>'
     # ret += '<form action="/engine/" method="post"><button name="Stockfish Move" type="submit">Make Stockfish Move</button></form>'
     return ret
 # Display Board
@@ -85,18 +84,19 @@ def human_and_ai_move():
 @app.route("/dev/", methods=['POST'])
 def dev():
     try:
-        get_ai_move(board)
+        ai_move = chess_ai.get_best_move(board, depth = 3)
+        board.push(ai_move)
     except Exception:
         traceback.print_exc()
     return main()
 # Make UCI Compatible engine's move
-@app.route("/engine/", methods=['POST'])
-def engine():
-    try:
-        stockfish()
-    except Exception:
-        traceback.print_exc()
-    return main()
+# @app.route("/engine/", methods=['POST'])
+# def engine():
+    # try:
+        # stockfish()
+    # except Exception:
+        # traceback.print_exc()
+    # return main()
 # New Game
 @app.route("/game/", methods=['POST'])
 def game():
@@ -120,4 +120,8 @@ app.run()
 
 
 ## take salesman out of the process
+
+# git add .
+# git commit -m "chess"
+# git push
 
