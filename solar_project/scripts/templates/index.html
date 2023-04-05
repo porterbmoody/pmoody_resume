@@ -1,0 +1,55 @@
+
+<div class="container">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <div class="row header">
+    <h1>True Solar &nbsp;</h1>
+    <h3>Just fill out a few details</h3>
+  </div>
+  <div class="row body">
+    <form action="#">
+      <ul>
+        <li>
+          <p class="left">
+            <label for="first_name">First Name</label>
+            <input type="text" name="first_name" placeholder="John" />
+          </p>
+          <p class="pull-right">
+            <label for="last_name">Last Name</label>
+            <input type="text" name="last_name" placeholder="Smith" />      
+          </p>
+          <p class="left">
+            <label for="email">Email <span class="req">*</span></label>
+            <input type="email" name="email" placeholder="john.smith@gmail.com" />
+          </p>
+          <p class="left">
+            <label for="street_address">Street Address <span class="req">*</span></label>
+            <input type="text" name="street_address" placeholder="Street Address..." />
+          </p>
+          <p class="left">
+            <label for="city">City <span class="req">*</span></label>
+            <input type="text" name="city" placeholder="City..." />
+          </p>
+          <p class="left">
+            <label for="state">State <span class="req">*</span></label>
+            <select name="state">
+              <option value="">Select a state...</option>
+              <!-- <option value="AL">Alabama</option> -->
+              <!-- <option value="AK">Alaska</option> -->
+              <option value="AZ">Arizona</option>
+              <option value="AR">Arkansas</option>
+              <option value="CA">California</option>
+              <option value="CO">Colorado</option>
+              <option value="ID">Idaho</option>
+              <option value="TX">Texas</option>
+              <option value="UT">Utah</option>
+            </select>
+          </p>
+        </li>
+        <li>
+          <input class="btn btn-submit" type="submit" value="Submit" />
+          <small>or press <strong>enter</strong></small>
+        </li>
+      </ul>
+    </form>
+  </div>
+</div>
