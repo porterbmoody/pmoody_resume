@@ -33,3 +33,9 @@ with open(download_path, 'wb') as out_file:
 
 
 #%%
+
+
+
+# git add .
+# git commit -m "solar ai"
+# git push
