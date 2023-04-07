@@ -52,6 +52,7 @@ formatted_address = response['formatted_address']
 print("Latitude:", lat)
 print("Longitude:", lng)
 print("Plus Code:", plus_code)
+
 print("Formatted Address:", formatted_address)
 print("plus code:", plus_code)
 
