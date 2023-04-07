@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
-
-<div class="container">
+  <form id="customer_form" action="#">s
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <div class="container">
   <div class="row header">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     <h1>True Solar &nbsp;</h1>
@@ -35,8 +36,6 @@
             <label for="state">State <span class="req">*</span></label>
             <select name="state">
               <option value="">Select a state...</option>
-              <!-- <option value="AL">Alabama</option> -->
-              <!-- <option value="AK">Alaska</option> -->
               <option value="AZ">Arizona</option>
               <option value="AR">Arkansas</option>
               <option value="CA">California</option>
@@ -47,17 +46,30 @@
             </select>
           </p>
         </li>
-        <script>
+        
+        <!-- <script>
           document.getElementById("myForm").addEventListener("submit", function() {
             window.location.href = "solar_form.html";
           });
-        </script>
+        </script> -->
         <li>
           <input class="btn btn-submit" onclick="window.location.href = 'solar_form.html';" type="submit" value="Submit" />
           <small>or press <strong>enter</strong></small>
         </li>
       </ul>
-  <img src="{{ url_for('data', filename='single_panel.png') }}" alt="Single Panel">
-  <img src="{{ url_for('data', filename='images_without_panels/86 S 2250 E, St. George, UT 84790.png') }}" alt="Rooftop">
-
+    </form>
+      <div class="row header">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+        <h1>Customize your Panel Locations &nbsp;</h1>
+      </div>
+      
+      <div class="row">
+        <div class="col">
+          <img src="{{ url_for('static', filename='images/single_panel.png') }}" alt="Single Panel" class="panel-img">
+        </div>
+        <div class="col">
+          <img src="{{ url_for('static', filename='images/images_without_panels/86 S 2250 E, St. George, UT 84790.png') }}" alt="Rooftop" class="rooftop-img">
+        </div>
+      </div>
+      
 </html>

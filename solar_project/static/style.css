@@ -94,4 +94,12 @@ body {
       padding: 10px;
     }
   }
-  
+  .panel-img {
+    width: 70px;
+  }
+
+  .rooftop-img {
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+  }
