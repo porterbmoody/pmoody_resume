@@ -4,7 +4,7 @@ import pandas as pd
 from send_sms import send_sms_epic_to
 import pandas as pd
 token_dict = pd.read_json('D:/BYUI/fall 2020/Side Projects/token_dict.json')
-config = {"user":'root', 
+config = {"user":'root',
             "password":'Yoho1mes',
             "host":'127.0.0.1',
             "database":"cars"}
@@ -23,9 +23,9 @@ def main():
 
     cols = "`,`".join([str(i) for i in dat.columns.tolist()])
     print(cols)
-    
 
-    ### query epic data 
+
+    ### query epic data
     query = "SELECT * FROM cars WHERE year >= 2008 AND miles <= 150000 AND price <= 4500;"
     mycursor1.execute(query)
     data = []
@@ -52,8 +52,8 @@ def main():
         # print(command)
         mycursor.execute(command)
         mydb.commit()
-    
-    ### query epic data 
+
+    ### query epic data
     query = "SELECT * FROM cars WHERE year >= 2008 AND miles <= 150000 AND price <= 4500;"
     mycursor2.execute(query)
     data = []

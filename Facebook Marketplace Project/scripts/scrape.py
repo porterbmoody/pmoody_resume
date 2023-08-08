@@ -62,7 +62,7 @@ def scroll_down(driver, number_of_scrolls):
 
 def extract_data_from_soup(soup):
     """
-    Input soup and this will extract data and 
+    Input soup and this will extract data and
     returns: pandas dataframe
     """
     prices            = []
@@ -86,7 +86,7 @@ def extract_data_from_soup(soup):
         mileage   = listing.find_all(class_ = mileage_class)
         location  = listing.find_all(class_ = location_class)
         link      = listing.find_all(class_ = link_class)
-        
+
         if len(listing.find_all(class_ = price_class)) > 0:
             if len(title) > 0:
                 title    = title[0].text
@@ -111,7 +111,7 @@ def extract_data_from_soup(soup):
             mileages.append(mileage)
             locations.append(location)
             links.append(link)
-            
+
     data = (pd.DataFrame({
             "title"        : titles,
             "mileage"      : mileages,
