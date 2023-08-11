@@ -1,13 +1,3 @@
-
-print('hello world')
-console.log('hello world')
-
-
-
-// Helper function to print to the screen. 
-function print(line) {
-  const appDiv = document.getElementById('app');
-  const div = document.createElement('div');
-  div.innerHTML = line;
-  appDiv.appendChild(div)
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:acd104bf6885750cef830399f7447160ef58b61fcd413a824520c83393d650d6
+size 276

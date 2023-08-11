@@ -1,17 +1,3 @@
-theme: jekyll-theme-cayman
-# Site
-repository: Git repository where your resume will be hosted, only required if you are hosting on GitHub (eg. sproogen/modern-resume-theme)
-# favicon: Directory of your favicon (eg. images/favicon.ico)(optional)
-
-# Content configuration version
-version: 2
-
-# Personal info
-name: Your Name
-title: Porter Moody is an epic coder!!
-email: Your email (optional)
-# email_title: Email (Email title override)
-phone: Your phone number (optional)
-# phone_title: Phone (Phone title override)
-website: Your website (eg. https://google.com)(optional)
-# website_title: Web (Website title override)
+version https://git-lfs.github.com/spec/v1
+oid sha256:e68d541da35631f4626014945c35df01401565a9c3069a6d089948b7ae96fbd1
+size 632
