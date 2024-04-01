@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #%%
 from transformers import GPT2LMHeadModel, GPT2Tokenizer, TextDataset, DataCollatorForLanguageModeling, Trainer, TrainingArguments
 path = "data.txt"
@@ -61,3 +62,8 @@ print(output_text)
 
 
 # %%
+=======
+version https://git-lfs.github.com/spec/v1
+oid sha256:797c952cfdc4494e6cc7eaeb7554f1ae2abf35c2fd0ec91b38543d5fc4a8e46d
+size 1543
+>>>>>>> c8e2e909f17e07eb3b555579bdfb11e9a874eb1f

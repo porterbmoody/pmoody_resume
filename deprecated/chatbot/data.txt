@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Neural networks work by using interconnected nodes, or "neurons," to process and transmit information. Each neuron receives input signals from other neurons, processes them using an activation function, and then passes the output signal to other neurons in the network. Through a process of repeated training, where the network is exposed to a large dataset and adjusts its weights and biases to minimize the difference between predicted and actual outcomes, the network can learn to make accurate predictions or classifications on new data.
 
 There are many types of neural networks, each designed for specific tasks such as image recognition, natural language processing, or time series forecasting. Some of the most commonly used types include feedforward neural networks, recurrent neural networks, and convolutional neural networks.
@@ -1465,3 +1466,8 @@ public mailing lists including connectionists@cs.cmu.edu, ml-news@googlegroups.c
 @diku.dk, Google+ machine learning forum. Thanks to numerous NN / DL experts for valuable
 comments. Thanks to SNF, DFG, and the European Commission for partially funding my DL research group in the past quarter-century. The contents of this paper may be used for educational and
 non-commercial purposes, including articles for Wikipedia and similar sites.
+=======
+version https://git-lfs.github.com/spec/v1
+oid sha256:7ab899cb3020383767400b9cdef82b3190cdcf945c358dba56bcf2a67d1df2d4
+size 140701
+>>>>>>> c8e2e909f17e07eb3b555579bdfb11e9a874eb1f
