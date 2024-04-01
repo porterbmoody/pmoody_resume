@@ -20,12 +20,20 @@ username_input_box = driver.find_elements(By.CSS_SELECTOR, username_class_name)
 username_input_box[0].send_keys(phone)
 username_input_box[1].send_keys(password)
 
-time.sleep(2)
-#%%
 login_button = driver.find_element(By.CSS_SELECTOR, ".btn-md.btn-primary.flex-shrink-0.cursor-pointer")
 
 login_button.click()
 time.sleep(2)
+
+
+#%%
+top_buttons_class = '.t-12.break-words.block.t-black--light.t-normal'
+top_buttons = driver.find_elements(By.CSS_SELECTOR, top_buttons_class)
+top_buttons[3].click()
+
+
+time.sleep(3)
+
 #%%
 driver.quit()
 
